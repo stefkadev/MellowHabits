@@ -2,8 +2,6 @@
 //  MellowHabitsApp.swift
 //  MellowHabits
 //
-//  Created by Stefka Spiegel on 10.02.26.
-//
 
 import SwiftUI
 
@@ -11,7 +9,7 @@ import SwiftUI
 struct MellowHabitsApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            SplashScreenView() // Die App startet mit dem Splash Screen
         }
     }
 }
