@@ -5,23 +5,19 @@ struct ContentView: View {
         TabView {
             DashboardView()
                 .tabItem {
-                    Label("Übersicht", systemImage: "house")
+                    Label("Übersicht", systemImage: "list.bullet")
+                }
+            
+            HabitsListView()
+                .tabItem {
+                    Label("Gewohnheiten", systemImage: "checkmark.circle")
                 }
             
             StatisticsView()
                 .tabItem {
-                    Label("Erfolge", systemImage: "chart.bar")
-                }
-            
-            SettingsView()
-                .tabItem {
-                    Label("Optionen", systemImage: "gearshape")
+                    Label("Erfolge", systemImage: "trophy")
                 }
         }
         .accentColor(.black)
     }
-}
-
-#Preview {
-    ContentView()
 }

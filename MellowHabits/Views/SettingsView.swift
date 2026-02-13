@@ -1,7 +1,3 @@
-//
-//  SettingsView.swift
-//  MellowHabits
-//
 import SwiftUI
 
 struct SettingsView: View {

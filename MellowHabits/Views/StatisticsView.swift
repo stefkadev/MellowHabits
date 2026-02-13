@@ -1,7 +1,3 @@
-//
-//  StatisticsView.swift
-//  MellowHabits
-//
 import SwiftUI
 
 struct StatisticsView: View {
