@@ -13,10 +13,10 @@ struct ContentView: View {
                 HabitListView()
                     .tag(1)
                 
-                Text("Statistik") // Platzhalter
+                StatisticsView()
                     .tag(2)
                 
-                Text("Settings") // Platzhalter
+                SettingsView()
                     .tag(3)
             }
             .onAppear {
