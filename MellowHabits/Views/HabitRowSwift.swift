@@ -1,52 +1,79 @@
 import SwiftUI
 
 struct HabitRowView: View {
-    let habit: Habit
-    
-    // Einfache Logik für die Merkliste:
-    // Ein Element gilt als "isDone", wenn mindestens ein Stempel/Punkt erreicht wurde
-    // oder das Ziel (totalGoal) erfüllt ist.
-    var isDone: Bool {
-        habit.currentPunches >= habit.totalGoal
-    }
+    @Bindable var habit: Habit
+    private let deepGold = Color(red: 0.75, green: 0.55, blue: 0.10)
+    private let softSand = Color(red: 0.98, green: 0.96, blue: 0.92)
     
     var body: some View {
-        HStack(spacing: 15) {
-            Image(systemName: isDone ? "checkmark.circle.fill" : "circle")
-                .foregroundColor(isDone ? .black : .black.opacity(0.2))
-                .font(.system(size: 24))
-            
-            VStack(alignment: .leading, spacing: 2) {
-                Text(habit.title)
-                    .font(.system(.body, design: .rounded))
-                    .fontWeight(.bold)
-                    .strikethrough(isDone, color: .black)
-                    .foregroundColor(isDone ? .secondary : .primary)
-                
-                if !habit.time.isEmpty {
-                    Text(habit.time)
-                        .font(.system(size: 12, design: .rounded))
-                        .foregroundColor(.secondary)
+        HStack(spacing: 16) {
+            // Der Check-Button: Weicher und organischer
+            Button(action: {
+                if habit.currentPunches >= habit.totalGoal {
+                    habit.currentPunches = 0
+                } else {
+                    habit.currentPunches = habit.totalGoal
+                }
+            }) {
+                ZStack {
+                    Circle()
+                        .fill(habit.currentPunches >= habit.totalGoal ? deepGold : Color.white)
+                        .frame(width: 32, height: 32)
+                        .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+                    
+                    if habit.currentPunches >= habit.totalGoal {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(.white)
+                    } else {
+                        Circle()
+                            .stroke(Color.black.opacity(0.1), lineWidth: 1.5)
+                            .frame(width: 32, height: 32)
+                    }
                 }
             }
+            .buttonStyle(PlainButtonStyle())
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(habit.title)
+                    .font(.system(size: 18, weight: .semibold, design: .rounded))
+                    .foregroundColor(habit.currentPunches >= habit.totalGoal ? .secondary.opacity(0.5) : .black.opacity(0.8))
+                    .strikethrough(habit.currentPunches >= habit.totalGoal, color: deepGold.opacity(0.3))
+                
+                Text(habit.time)
+                    .font(.system(size: 13, weight: .medium, design: .serif)) // Serif für den Cozy-Touch
+                    .italic()
+                    .foregroundColor(.secondary.opacity(0.6))
+            }
+            
             Spacer()
+            
+            // Ein dezentes Blatt oder Herz als Belohnung-Icon
+            Image(systemName: habit.currentPunches >= habit.totalGoal ? "sparkles" : "leaf.fill")
+                .font(.system(size: 14))
+                .foregroundColor(habit.currentPunches >= habit.totalGoal ? deepGold.opacity(0.6) : Color.black.opacity(0.05))
         }
-        .padding(.vertical, 16)
         .padding(.horizontal, 20)
+        .padding(.vertical, 16)
         .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color.white.opacity(isDone ? 0.5 : 0.9))
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .fill(softSand) // Weicher Hintergrund statt Reinweiß
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .stroke(Color.black.opacity(0.03), lineWidth: 1)
         )
     }
 }
 
-// MARK: - Preview (Nur für diese View)
 #Preview {
+    let testHabit = Habit(title: "Die Gemeinde pflegen", time: "Vormittags", currentPunches: 0, totalGoal: 1)
+    
     ZStack {
-        Color("MellowYellow").ignoresSafeArea()
-        VStack {
-            HabitRowView(habit: Habit(title: "Wäsche waschen", time: "Morgens", currentPunches: 0, totalGoal: 1))
-            HabitRowView(habit: Habit(title: "Hausaufgaben", time: "14:00", currentPunches: 1, totalGoal: 1))
+        Color(red: 0.99, green: 0.98, blue: 0.94).ignoresSafeArea()
+        VStack(spacing: 15) {
+            HabitRowView(habit: testHabit)
+            HabitRowView(habit: Habit(title: "Looten und Leveln", time: "Abends", currentPunches: 1, totalGoal: 1))
         }
         .padding()
     }
