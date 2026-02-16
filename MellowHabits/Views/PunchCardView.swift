@@ -82,3 +82,10 @@ struct PunchCardView: View {
         .padding()
         .background(Color("MellowYellow"))
 }
+#Preview {
+    let mockHabit = Habit(title: "Trinken", time: "Ganztägig", currentPunches: 2, totalGoal: 8)
+    let mockStore = HabitStore()
+    
+    return PunchCardView(habit: mockHabit)
+        .environment(mockStore)
+}

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HabitDetailView: View {
     @Bindable var habit: Habit
+    @Environment(HabitStore.self) private var store
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -9,23 +10,32 @@ struct HabitDetailView: View {
             Color("MellowYellow").ignoresSafeArea()
             
             Form {
-                Section("Bearbeiten") {
+                Section(header: Text("Stammdaten")) {
                     TextField("Titel", text: $habit.title)
-                    TextField("Zeit", text: $habit.time)
+                    TextField("Geplante Uhrzeit", text: $habit.time)
                 }
                 
-                Section("Fortschritt") {
-                    // WICHTIG: Nutze $ für das Binding beim Stepper
-                    Stepper("Stempel: \(habit.currentPunches)", value: $habit.currentPunches, in: 0...habit.totalGoal)
-                    Stepper("Ziel: \(habit.totalGoal)", value: $habit.totalGoal, in: 1...20)
+                Section(header: Text("Fortschritt & Ziele")) {
+                    Stepper("Aktuelle Stempel: \(habit.currentPunches)",
+                            value: $habit.currentPunches,
+                            in: 0...habit.totalGoal)
+                    
+                    Stepper("Gesamtziel: \(habit.totalGoal)",
+                            value: $habit.totalGoal,
+                            in: 1...30)
                 }
             }
             .scrollContentBackground(.hidden)
         }
-        .navigationTitle("Details")
+        .navigationTitle("Gewohnheit bearbeiten")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            Button("Fertig") { dismiss() }
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Fertig") {
+                    store.save()
+                    dismiss()
+                }
+            }
         }
     }
 }

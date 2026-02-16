@@ -4,7 +4,7 @@ import SwiftUI
 struct MellowHabitsApp: App {
     @State private var habitStore = HabitStore()
 
-    var body: some Scene { 
+    var body: some Scene {
         WindowGroup {
             ContentView()
                 .environment(habitStore)
