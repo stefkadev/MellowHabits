@@ -1,6 +1,6 @@
 import Foundation
 import Observation
-import SwiftUI // Zwingend notwendig für IndexSet und Listen-Operationen
+import SwiftUI
 
 @Observable
 class HabitStore {
@@ -23,7 +23,13 @@ class HabitStore {
     }
     
     func deleteHabit(at offsets: IndexSet) {
-        habits.remove(atOffsets: offsets) 
+        habits.remove(atOffsets: offsets)
+    }
+    
+    // MARK: - Alles zurücksetzen
+    func clearAllData() {
+        habits.removeAll()
+        UserDefaults.standard.removeObject(forKey: "SavedHabits")
     }
     
     func save() {
@@ -38,7 +44,8 @@ class HabitStore {
     private func load() {
         if let data = UserDefaults.standard.data(forKey: "SavedHabits") {
             do {
-                self.habits = try JSONDecoder().decode([Habit].self, from: data)
+                let decoded = try JSONDecoder().decode([Habit].self, from: data)
+                self.habits = decoded
             } catch {
                 print("Fehler beim Laden")
             }

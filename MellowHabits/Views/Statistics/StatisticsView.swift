@@ -28,7 +28,7 @@ struct StatisticsView: View {
                             .font(.system(size: 40, weight: .heavy, design: .rounded))
                             .foregroundColor(Color.black.opacity(0.8))
                         
-                        Text("Karten mit über 80% Fortschritt.")
+                        Text("Feiere Erfolge mit über 80% Fortschritt!")
                             .font(.system(size: 16, weight: .semibold, design: .serif))
                             .italic()
                             .foregroundColor(deepGold)

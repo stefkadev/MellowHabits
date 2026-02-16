@@ -3,6 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @State private var selectedTab = 0
     private let mellowAccent = Color(red: 0.98, green: 0.82, blue: 0.25)
+    private let deepGold = Color(red: 0.75, green: 0.55, blue: 0.10)
     
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -23,7 +24,7 @@ struct ContentView: View {
                 UITabBar.appearance().isHidden = true
             }
             
-            // Custom Floating Tab Bar
+            // --- Neue Gelbe Custom Floating Tab Bar ---
             HStack {
                 tabButton(icon: "list.bullet.rectangle", index: 0)
                 Spacer()
@@ -34,34 +35,44 @@ struct ContentView: View {
                 tabButton(icon: "gearshape", index: 3)
             }
             .padding(.horizontal, 30)
-            .padding(.vertical, 15)
+            .padding(.vertical, 12)
             .background(
                 Capsule()
-                    .fill(Color.white)
-                    .shadow(color: Color.black.opacity(0.08), radius: 15, x: 0, y: 5)
+                    .fill(mellowAccent) // Jetzt ist die ganze Leiste gelb
+                    .shadow(color: mellowAccent.opacity(0.4), radius: 15, x: 0, y: 8)
             )
             .padding(.horizontal, 20)
-            .padding(.bottom, 10) 
+            .padding(.bottom, 15) // Etwas mehr Platz nach unten
         }
         .ignoresSafeArea(.keyboard)
     }
     
     private func tabButton(icon: String, index: Int) -> some View {
-        Button(action: { selectedTab = index }) {
+        Button(action: {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                selectedTab = index
+            }
+        }) {
             Image(systemName: icon)
                 .font(.system(size: 22, weight: .bold))
-                .foregroundColor(selectedTab == index ? mellowAccent : .gray.opacity(0.4))
-                .frame(width: 44, height: 44)
+                // AKTIV: Weiß für maximalen Kontrast | INAKTIV: Dunkles Gold
+                .foregroundColor(selectedTab == index ? .white : deepGold.opacity(0.6))
+                .frame(width: 45, height: 45)
                 .background(
                     Circle()
-                        .fill(selectedTab == index ? mellowAccent.opacity(0.1) : Color.clear)
+                        // Ein subtiler dunklerer Gelbton für den Auswahlkreis
+                        .fill(selectedTab == index ? deepGold.opacity(0.2) : Color.clear)
                 )
         }
     }
 }
 
-// MARK: - Preview (Pflicht-Check)
+// MARK: - Preview (Pflicht)
 #Preview {
-    ContentView()
-        .environment(HabitStore())
+    // Wir bauen hier direkt die Reset-Logik für eine saubere Vorschau ein
+    let previewStore = HabitStore()
+    previewStore.clearAllData()
+    
+    return ContentView()
+        .environment(previewStore)
 }

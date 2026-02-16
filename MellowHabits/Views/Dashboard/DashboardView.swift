@@ -4,7 +4,6 @@ struct DashboardView: View {
     @Environment(HabitStore.self) private var store
     @State private var showingAddSheet = false
     @State private var filterSelection: FilterType = .all
-    
     @State private var selectedDateIndex: Int = 6
     
     private let mellowAccent = Color(red: 0.98, green: 0.82, blue: 0.25)
@@ -17,11 +16,13 @@ struct DashboardView: View {
         case fulfilled = "Erledigt"
     }
 
+    // Filtert nur die "kleinen" Aufgaben (Ziel 1) für das Dashboard
     var filteredHabits: [Habit] {
+        let dashboardHabits = store.habits.filter { $0.totalGoal == 1 }
         switch filterSelection {
-        case .all: return store.habits
-        case .unfulfilled: return store.habits.filter { $0.currentPunches < $0.totalGoal }
-        case .fulfilled: return store.habits.filter { $0.currentPunches >= $0.totalGoal }
+        case .all: return dashboardHabits
+        case .unfulfilled: return dashboardHabits.filter { $0.currentPunches < $0.totalGoal }
+        case .fulfilled: return dashboardHabits.filter { $0.currentPunches >= $0.totalGoal }
         }
     }
 
@@ -41,7 +42,7 @@ struct DashboardView: View {
                     
                     HStack(spacing: 8) {
                         Image(systemName: "heart.fill").font(.system(size: 10))
-                        Text(selectedDateIndex == 6 ? "Done is better than perfect!" : "Done is better than perfect!")
+                        Text("Done is better than perfect!")
                     }
                     .font(.system(size: 16, weight: .semibold, design: .serif))
                     .italic()
@@ -52,10 +53,15 @@ struct DashboardView: View {
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 18) {
                         if filteredHabits.isEmpty {
-                            Text("Keine Aufgaben für diesen Tag")
-                                .font(.serifStyle)
-                                .foregroundColor(.secondary)
-                                .padding(.top, 40)
+                            VStack(spacing: 12) {
+                                Spacer().frame(height: 40)
+                                Image(systemName: "sun.max.fill")
+                                    .font(.system(size: 40))
+                                    .foregroundColor(mellowAccent.opacity(0.5))
+                                Text("Alles erledigt für heute!")
+                                    .font(.serifStyle)
+                                    .foregroundColor(.secondary)
+                            }
                         } else {
                             ForEach(filteredHabits) { habit in
                                 HabitRowView(habit: habit)
@@ -72,9 +78,46 @@ struct DashboardView: View {
             floatingActionButton.zIndex(1)
         }
         .sheet(isPresented: $showingAddSheet) { AddHabitView() }
+        .onAppear { ensureInitialElements() }
     }
 
-    // --- KALENDER LOGIK ---
+    // --- Komponenten ---
+
+    private var headerSection: some View {
+        HStack {
+            Menu {
+                Picker("Filter", selection: $filterSelection) {
+                    ForEach(FilterType.allCases, id: \.self) { type in
+                        Text(type.rawValue).tag(type)
+                    }
+                }
+            } label: {
+                HStack(spacing: 6) {
+                    Text(filterSelection.rawValue)
+                    Image(systemName: "chevron.down")
+                }
+                .font(.system(size: 14, weight: .bold, design: .rounded))
+                .foregroundColor(.white) // Weiße Schrift
+                .padding(.horizontal, 16).padding(.vertical, 8)
+                .background(mellowAccent) // Mellow Gelber Hintergrund
+                .clipShape(Capsule())
+                .shadow(color: mellowAccent.opacity(0.3), radius: 5, x: 0, y: 3)
+            }
+            
+            Spacer()
+            
+            VStack(alignment: .trailing, spacing: 2) {
+                Text("STAND")
+                    .font(.system(size: 10, weight: .black, design: .rounded))
+                    .kerning(1.2).foregroundColor(.secondary.opacity(0.5))
+                Text(selectedDateIndex == 6 ? "Heute" : "1\(selectedDateIndex). Feb")
+                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .foregroundColor(deepGold)
+            }
+        }
+        .padding(.horizontal, 25)
+    }
+
     private var calendarHorizontalBar: some View {
         HStack(spacing: 0) {
             let days = ["Di", "Mi", "Do", "Fr", "Sa", "So", "Mo"]
@@ -103,7 +146,6 @@ struct DashboardView: View {
                                         Circle()
                                             .fill(isToday ? mellowAccent : Color.white)
                                             .shadow(color: isToday ? mellowAccent.opacity(0.4) : Color.black.opacity(0.1), radius: 6, x: 0, y: 3)
-                                        
                                         if !isToday {
                                             Circle().stroke(mellowAccent, lineWidth: 2)
                                         }
@@ -121,43 +163,6 @@ struct DashboardView: View {
         }
         .padding(.horizontal, 15)
     }
-    
-    private var headerSection: some View {
-        HStack {
-            Menu {
-                Picker("Filter", selection: $filterSelection) {
-                    ForEach(FilterType.allCases, id: \.self) { type in
-                        Text(type.rawValue).tag(type)
-                    }
-                }
-            } label: {
-                HStack(spacing: 6) {
-                    Text(filterSelection.rawValue)
-                    Image(systemName: "chevron.down")
-                }
-                .font(.system(size: 14, weight: .bold, design: .rounded))
-                .foregroundColor(.black.opacity(0.7))
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(Color.white)
-                .clipShape(Capsule())
-                .shadow(color: .black.opacity(0.05), radius: 2)
-            }
-            
-            Spacer()
-            
-            VStack(alignment: .trailing, spacing: 2) {
-                Text("STAND")
-                    .font(.system(size: 10, weight: .black, design: .rounded))
-                    .kerning(1.2)
-                    .foregroundColor(.secondary.opacity(0.5))
-                Text(selectedDateIndex == 6 ? "Heute" : "1\(selectedDateIndex). Feb")
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
-                    .foregroundColor(deepGold)
-            }
-        }
-        .padding(.horizontal, 25)
-    }
 
     private var floatingActionButton: some View {
         VStack {
@@ -169,14 +174,11 @@ struct DashboardView: View {
                         .font(.system(size: 30, weight: .light))
                         .foregroundColor(.white)
                         .frame(width: 68, height: 68)
-                        .background(
-                            LinearGradient(colors: [mellowAccent, Color(red: 0.95, green: 0.75, blue: 0.20)], startPoint: .topLeading, endPoint: .bottomTrailing)
-                        )
+                        .background(mellowAccent)
                         .clipShape(Circle())
-                        .shadow(color: mellowAccent.opacity(0.5), radius: 15, x: 0, y: 8)
+                        .shadow(color: mellowAccent.opacity(0.4), radius: 15, x: 0, y: 8)
                 }
-                .padding(.trailing, 25)
-                .padding(.bottom, 110)
+                .padding(.trailing, 25).padding(.bottom, 110)
             }
         }
     }
@@ -185,18 +187,27 @@ struct DashboardView: View {
         if store.habits.isEmpty {
             store.addHabit(title: "Minecraft-Garten pflegen", time: "Vormittags", goal: 1)
             store.addHabit(title: "Looten und Leveln", time: "Nachmittags", goal: 1)
-            store.addHabit(title: "Kohlenhydrate sammeln", time: "Abendbrot", goal: 1)
+            store.addHabit(title: "Pflanzen gießen", time: "Morgens", goal: 1)
         }
     }
 }
 
-// Hilfs-Extension für sauberen Code
+// MARK: - Preview (Mit Reset-Funktion)
+#Preview {
+    let previewStore = HabitStore()
+    previewStore.clearAllData() // Verhindert Dubletten beim Neuladen
+    
+    previewStore.addHabit(title: "Minecraft-Garten", time: "Vormittags", goal: 1)
+    previewStore.addHabit(title: "Looten & Leveln", time: "Abends", goal: 1)
+    previewStore.addHabit(title: "Pflanzen gießen", time: "Morgens", goal: 1)
+    previewStore.addHabit(title: "Code Projekt", time: "Täglich", goal: 10)
+    
+    return DashboardView()
+        .environment(previewStore)
+}
+
 extension Font {
     static var serifStyle: Font {
         .system(size: 16, weight: .medium, design: .serif)
     }
-}
-
-#Preview {
-    DashboardView().environment(HabitStore())
 }

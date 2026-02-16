@@ -9,6 +9,7 @@ struct HabitListView: View {
     private let cozyBg = Color(red: 0.96, green: 0.93, blue: 0.88)
     private let deepGold = Color(red: 0.75, green: 0.55, blue: 0.10)
 
+    // Filtert exklusiv die großen 10er Karten
     private var punchCards: [Habit] {
         store.habits.filter { $0.totalGoal == 10 }
     }
@@ -28,7 +29,7 @@ struct HabitListView: View {
                         HStack(spacing: 8) {
                             Image(systemName: "star.square.fill")
                                 .font(.system(size: 14))
-                            Text("Langfristige Gewohnheiten & Belohnungen")
+                            Text("Baue langfristige Gewohnheiten auf!")
                         }
                         .font(.system(size: 14, weight: .bold, design: .rounded))
                         .foregroundColor(deepGold)
@@ -57,6 +58,7 @@ struct HabitListView: View {
                 floatingAddButton.zIndex(1)
             }
             .sheet(isPresented: $showingAddSheet) {
+                // FIX: Hier übergeben wir den Marker für 10 Stempel
                 AddHabitView()
             }
         }
@@ -65,7 +67,7 @@ struct HabitListView: View {
     private var emptyState: some View {
         VStack(spacing: 12) {
             Spacer().frame(height: 100)
-            Image(systemName: "Pentagon.fill")
+            Image(systemName: "pentagon.fill") // Kleinschreibung korrigiert
                 .font(.system(size: 50))
                 .foregroundColor(deepGold.opacity(0.2))
             Text("Noch keine aktiven Punchcards.")
@@ -85,7 +87,7 @@ struct HabitListView: View {
                         .font(.system(size: 30, weight: .light))
                         .foregroundColor(.white)
                         .frame(width: 68, height: 68)
-                        .background(mellowAccent) // Solide Farbe statt Gradient gegen den Gold-Stich
+                        .background(mellowAccent)
                         .clipShape(Circle())
                         .shadow(color: mellowAccent.opacity(0.3), radius: 15, x: 0, y: 8)
                 }
@@ -96,14 +98,17 @@ struct HabitListView: View {
     }
 }
 
-// MARK: - Preview
+// MARK: - Preview (Jetzt mit sauberer Reset-Logik)
 #Preview {
     let previewStore = HabitStore()
     
-    if previewStore.habits.isEmpty {
-        previewStore.addHabit(title: "Müll wegbringen", time: "Sofort", goal: 1)
-        previewStore.addHabit(title: "Code Projekt", time: "Täglich", goal: 10)
-    }
+    // 1. Alles löschen für sauberen Start
+    previewStore.clearAllData()
+    
+    // 2. Nur die 3 gewünschten Elemente hinzufügen
+    previewStore.addHabit(title: "Code Projekt", time: "Täglich", goal: 10)
+    previewStore.addHabit(title: "Sport machen", time: "3x Woche", goal: 10)
+    previewStore.addHabit(title: "Zimmer aufräumen", time: "Wöchentlich", goal: 1) // Erscheint hier nicht (da goal 1)
     
     return HabitListView()
         .environment(previewStore)
