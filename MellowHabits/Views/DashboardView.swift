@@ -5,7 +5,6 @@ struct DashboardView: View {
     @State private var showingAddSheet = false
     @State private var filterSelection: FilterType = .all
     
-    // NEU: State für das ausgewählte Datum (0 = Di, ..., 6 = Mo/Heute)
     @State private var selectedDateIndex: Int = 6
     
     private let mellowAccent = Color(red: 0.98, green: 0.82, blue: 0.25)
@@ -19,7 +18,6 @@ struct DashboardView: View {
     }
 
     var filteredHabits: [Habit] {
-        // Hier filterst du später nach dem Datum: store.habits.filter { $0.date == selectedDate }
         switch filterSelection {
         case .all: return store.habits
         case .unfulfilled: return store.habits.filter { $0.currentPunches < $0.totalGoal }
@@ -34,7 +32,6 @@ struct DashboardView: View {
             VStack(alignment: .leading, spacing: 0) {
                 headerSection.padding(.top, 15)
                 
-                // Kalender jetzt interaktiv
                 calendarHorizontalBar.padding(.top, 25)
                 
                 VStack(alignment: .leading, spacing: 6) {
@@ -125,7 +122,6 @@ struct DashboardView: View {
         .padding(.horizontal, 15)
     }
     
-    // ... (restliche Subviews: headerSection, floatingActionButton)
     private var headerSection: some View {
         HStack {
             Menu {

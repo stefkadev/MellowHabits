@@ -6,7 +6,6 @@ struct ContentView: View {
     
     var body: some View {
         ZStack(alignment: .bottom) {
-            // Der Inhalt der verschiedenen Tabs
             TabView(selection: $selectedTab) {
                 DashboardView()
                     .tag(0)
@@ -20,7 +19,6 @@ struct ContentView: View {
                 Text("Settings") // Platzhalter
                     .tag(3)
             }
-            // Standard TabBar verstecken, um unsere eigene zu nutzen
             .onAppear {
                 UITabBar.appearance().isHidden = true
             }
