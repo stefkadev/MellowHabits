@@ -12,7 +12,6 @@ struct PunchCardView: View {
         return progress >= 0.8 && habit.currentPunches < habit.totalGoal
     }
 
-    // Kraftvolle Icons, die zu fast jeder Gewohnheit passen
     private var stampIcon: String {
         let icons = ["bolt.fill", "star.fill", "flame.fill", "heart.fill", "crown.fill", "checkmark.seal.fill", "trophy.fill"]
         let hash = abs(habit.title.hashValue)
@@ -21,7 +20,6 @@ struct PunchCardView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            // Header
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack {
@@ -48,13 +46,13 @@ struct PunchCardView: View {
                     .cornerRadius(12)
             }
             
-            // Raster
+        
             let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 5)
             
             LazyVGrid(columns: columns, spacing: 15) {
                 ForEach(0..<habit.totalGoal, id: \.self) { index in
                     ZStack {
-                        // Der leere Slot
+               
                         Circle()
                             .fill(Color.black.opacity(0.03))
                             .frame(width: 44, height: 44)
@@ -68,13 +66,13 @@ struct PunchCardView: View {
                             Image(systemName: stampIcon)
                                 .font(.system(size: 24, weight: .black))
                                 .foregroundColor(deepGold)
-                                // Der Clou: Eine Maske aus vielen kleinen Punkten für den Stempel-Look
+             
                                 .mask(
                                     ZStack {
                                         Image(systemName: stampIcon)
                                             .font(.system(size: 24, weight: .black))
                                         
-                                        // "Abnutzung" simulieren
+                                     
                                         Circle()
                                             .stroke(style: StrokeStyle(lineWidth: 2, dash: [0.5, 2]))
                                             .frame(width: 30, height: 30)

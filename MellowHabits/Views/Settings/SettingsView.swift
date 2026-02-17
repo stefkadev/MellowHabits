@@ -1,11 +1,11 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @Environment(HabitStore.self) private var store // Verbindung zum Store
+    @Environment(HabitStore.self) private var store
     
     @State private var remindersEnabled = true
     @State private var soundEffectsEnabled = true
-    @State private var showDeleteAlert = false // Für den Sicherheits-Check
+    @State private var showDeleteAlert = false
     
     // Cozy Palette
     private let mellowAccent = Color(red: 0.98, green: 0.82, blue: 0.25)
@@ -84,7 +84,7 @@ struct SettingsView: View {
                         VStack(alignment: .leading, spacing: 12) {
                             settingsLabel("Sicherheit")
                             Button(action: {
-                                showDeleteAlert = true // Zeigt den Bestätigungs-Dialog
+                                showDeleteAlert = true
                             }) {
                                 HStack {
                                     Image(systemName: "trash.fill")
@@ -105,12 +105,12 @@ struct SettingsView: View {
                     }
                 }
             }
-            // Der Alert, der beim Drücken auf Löschen erscheint
+
             .alert("Alles löschen?", isPresented: $showDeleteAlert) {
                 Button("Abbrechen", role: .cancel) { }
                 Button("Ja, alles löschen", role: .destructive) {
                     withAnimation {
-                        store.clearAllData() // Ruft die Funktion im Store auf
+                        store.clearAllData()
                     }
                 }
             } message: {
@@ -174,7 +174,6 @@ struct SettingsView: View {
 // MARK: - Preview
 #Preview {
     let previewStore = HabitStore()
-    // Optional: Hier ein paar Test-Habits hinzufügen, um zu sehen wie sie gelöscht werden
     return SettingsView()
         .environment(previewStore)
 }

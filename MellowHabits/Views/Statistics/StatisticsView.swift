@@ -8,7 +8,6 @@ struct StatisticsView: View {
     private let cozyBg = Color(red: 0.96, green: 0.93, blue: 0.88)
     private let deepGold = Color(red: 0.75, green: 0.55, blue: 0.10)
 
-    // ECHTE LOGIK: Berechnet die Aktivität basierend auf den punchDates im Store
     private var weeklyActivity: [ActivityData] {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
@@ -17,7 +16,6 @@ struct StatisticsView: View {
             let date = calendar.date(byAdding: .day, value: -dayOffset, to: today)!
             let dayName = date.formatted(.dateTime.weekday(.short))
             
-            // Zählt alle Punches über alle Habits hinweg für diesen Tag
             let count = store.habits.reduce(0) { total, habit in
                 total + habit.punchDates.filter { calendar.isDate($0, inSameDayAs: date) }.count
             }

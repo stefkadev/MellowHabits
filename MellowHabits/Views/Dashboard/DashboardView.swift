@@ -77,21 +77,19 @@ struct DashboardView: View {
                 .padding(.horizontal, 25).padding(.top, 30)
                 
                 ScrollView(.vertical, showsIndicators: false) {
-                    VStack(spacing: 18) {
+                    VStack(spacing: 12) {
                         if filteredHabits.isEmpty {
                             emptyState
                         } else {
                             ForEach(filteredHabits) { habit in
                                 HabitRowView(habit: habit)
-                                    .background(Color.white)
-                                    .cornerRadius(24)
-                                    .shadow(color: Color.black.opacity(0.04), radius: 10, x: 0, y: 5)
+                                    .shadow(color: Color.black.opacity(0.03), radius: 5, x: 0, y: 2)
                             }
                         }
                     }
                     .padding(.horizontal, 25)
                     .padding(.top, 20)
-                    .padding(.bottom, 150) // Platz für den Floating Button
+                    .padding(.bottom, 150)
                 }
             }
             
@@ -101,7 +99,7 @@ struct DashboardView: View {
         .onAppear { ensureInitialElements() }
     }
 
-    // --- Komponenten ---
+    // --- Private Hilfskomponenten ---
 
     private var filterMenu: some View {
         Menu {
@@ -184,7 +182,7 @@ struct DashboardView: View {
                 .font(.system(size: 40))
                 .foregroundColor(mellowAccent.opacity(0.5))
             Text("Alles erledigt für heute!")
-                .font(.serifStyle)
+                .font(.system(size: 16, weight: .medium, design: .serif))
                 .foregroundColor(.secondary)
         }
     }
@@ -199,17 +197,13 @@ struct DashboardView: View {
                     showingAddSheet = true
                 }) {
                     Image(systemName: "plus")
-                        .font(.system(size: 30, weight: .bold)) // Fett für bessere Lesbarkeit mit Ring
+                        .font(.system(size: 30, weight: .bold))
                         .foregroundColor(.white)
                         .frame(width: 68, height: 68)
                         .background(
                             Circle()
                                 .fill(mellowAccent)
-                                // Der weiße Ring für Konsistenz mit der Habit-Liste
-                                .overlay(
-                                    Circle()
-                                        .stroke(Color.white, lineWidth: 4)
-                                )
+                                .overlay(Circle().stroke(Color.white, lineWidth: 4))
                         )
                         .shadow(color: Color.black.opacity(0.15), radius: 15, x: 0, y: 8)
                 }
@@ -228,21 +222,84 @@ struct DashboardView: View {
     }
 }
 
-extension Font {
-    static var serifStyle: Font {
-        .system(size: 16, weight: .medium, design: .serif)
+// MARK: - HabitRowView
+
+struct HabitRowView: View {
+    var habit: Habit
+    
+    private let deepGold = Color(red: 0.75, green: 0.55, blue: 0.10)
+    private let softSand = Color(red: 0.98, green: 0.96, blue: 0.92)
+    
+    var isDone: Bool {
+        habit.currentPunches >= habit.totalGoal
+    }
+    
+    var body: some View {
+        @Bindable var bindableHabit = habit
+        
+        HStack(spacing: 16) {
+            Button(action: {
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                withAnimation(.spring()) {
+                    if isDone {
+                        bindableHabit.currentPunches = 0
+                    } else {
+                        bindableHabit.currentPunches = habit.totalGoal
+                    }
+                }
+            }) {
+                ZStack {
+                    Circle()
+                        .fill(isDone ? deepGold : Color.white)
+                        .frame(width: 32, height: 32)
+                        .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+                    
+                    if isDone {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(.white)
+                    } else {
+                        Circle()
+                            .stroke(Color.black.opacity(0.1), lineWidth: 1.5)
+                            .frame(width: 32, height: 32)
+                    }
+                }
+            }
+            .buttonStyle(PlainButtonStyle())
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(habit.title)
+                    .font(.system(size: 18, weight: .semibold, design: .rounded))
+                    .foregroundColor(isDone ? .black.opacity(0.6) : .black.opacity(0.8))
+                    .strikethrough(isDone, color: deepGold.opacity(0.4))
+                    .lineLimit(1)
+                
+                Text(habit.time)
+                    .font(.system(size: 14, weight: .medium, design: .serif))
+                    .italic()
+                    .foregroundColor(isDone ? .black.opacity(0.3) : .black.opacity(0.6))
+            }
+            
+            Spacer()
+            
+            Image(systemName: isDone ? "sparkles" : habit.icon)
+                .font(.system(size: 14))
+                .foregroundColor(isDone ? deepGold.opacity(0.8) : Color.black.opacity(0.2))
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .fill(softSand)
+        )
     }
 }
 
 // MARK: - Preview
+
 #Preview {
     let previewStore = HabitStore()
-    previewStore.clearAllData()
-    
-    previewStore.addHabit(title: "Kohle, Kohle, Kohle sammeln", time: "Täglich", goal: 64)
-    previewStore.addHabit(title: "Minecraft-Garten pflegen", time: "Vormittags", goal: 1)
-    previewStore.addHabit(title: "Looten & Leveln", time: "Abends", goal: 5)
-    
+
     return DashboardView()
         .environment(previewStore)
 }

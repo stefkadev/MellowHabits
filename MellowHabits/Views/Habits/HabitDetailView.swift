@@ -5,7 +5,7 @@ struct HabitDetailView: View {
     @Environment(HabitStore.self) private var store
     @Environment(\.dismiss) private var dismiss
 
-    // Farbschema passend zur AddHabitView
+    // Farbschema
     private let mellowAccent = Color(red: 0.98, green: 0.82, blue: 0.25)
     private let deepGold = Color(red: 0.75, green: 0.55, blue: 0.10)
     private let cozyBg = Color(red: 0.96, green: 0.93, blue: 0.88)
@@ -62,7 +62,6 @@ struct HabitDetailView: View {
                             .padding(.horizontal, 40)
                         
                         Button(role: .destructive) {
-                            // Hier könnte store.delete(habit) stehen
                             dismiss()
                         } label: {
                             Text("Gewohnheit löschen")
@@ -91,7 +90,6 @@ struct HabitDetailView: View {
         }
     }
 
-    // Hilfskomponenten für das einheitliche Design
     private func headerLabel(_ text: String) -> some View {
         Text(text)
             .font(.system(size: 11, weight: .black, design: .rounded))
@@ -150,7 +148,7 @@ struct HabitDetailView: View {
     }
 }
 
-// MARK: - Preview (Immer dabei)
+// MARK: - Preview
 #Preview {
     NavigationStack {
         HabitDetailView(habit: Habit(title: "Code Projekt", time: "10:00 Uhr", currentPunches: 3, totalGoal: 10))

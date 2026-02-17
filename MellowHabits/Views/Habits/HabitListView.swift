@@ -83,13 +83,12 @@ struct HabitListView: View {
                 Spacer()
                 Button(action: { showingAddSheet = true }) {
                     Image(systemName: "plus")
-                        .font(.system(size: 30, weight: .bold)) // Etwas dicker für die Sichtbarkeit
+                        .font(.system(size: 30, weight: .bold))
                         .foregroundColor(.white)
                         .frame(width: 68, height: 68)
                         .background(
                             Circle()
                                 .fill(mellowAccent)
-                                // Der weiße Umrandungs-Ring:
                                 .overlay(
                                     Circle()
                                         .stroke(Color.white, lineWidth: 4)
@@ -98,7 +97,7 @@ struct HabitListView: View {
                         .shadow(color: Color.black.opacity(0.15), radius: 15, x: 0, y: 8)
                 }
                 .padding(.trailing, 25)
-                .padding(.bottom, 110) // Deine bewährte Position
+                .padding(.bottom, 110)
             }
         }
     }
