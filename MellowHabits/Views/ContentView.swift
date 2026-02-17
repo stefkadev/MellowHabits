@@ -24,7 +24,7 @@ struct ContentView: View {
                 UITabBar.appearance().isHidden = true
             }
             
-            // --- Neue Gelbe Custom Floating Tab Bar ---
+            // --- Optimierte Custom Floating Tab Bar ---
             HStack {
                 tabButton(icon: "list.bullet.rectangle", index: 0)
                 Spacer()
@@ -38,11 +38,11 @@ struct ContentView: View {
             .padding(.vertical, 12)
             .background(
                 Capsule()
-                    .fill(mellowAccent) // Jetzt ist die ganze Leiste gelb
-                    .shadow(color: mellowAccent.opacity(0.4), radius: 15, x: 0, y: 8)
+                    .fill(mellowAccent.opacity(0.9))
+                    .shadow(color: mellowAccent.opacity(0.3), radius: 15, x: 0, y: 8)
             )
             .padding(.horizontal, 20)
-            .padding(.bottom, 15) // Etwas mehr Platz nach unten
+            .padding(.bottom, 15)
         }
         .ignoresSafeArea(.keyboard)
     }
@@ -55,13 +55,11 @@ struct ContentView: View {
         }) {
             Image(systemName: icon)
                 .font(.system(size: 22, weight: .bold))
-                // AKTIV: Weiß für maximalen Kontrast | INAKTIV: Dunkles Gold
                 .foregroundColor(selectedTab == index ? .white : deepGold.opacity(0.6))
                 .frame(width: 45, height: 45)
                 .background(
                     Circle()
-                        // Ein subtiler dunklerer Gelbton für den Auswahlkreis
-                        .fill(selectedTab == index ? deepGold.opacity(0.2) : Color.clear)
+                        .fill(selectedTab == index ? Color.white.opacity(0.2) : Color.clear)
                 )
         }
     }
@@ -69,7 +67,6 @@ struct ContentView: View {
 
 // MARK: - Preview (Pflicht)
 #Preview {
-    // Wir bauen hier direkt die Reset-Logik für eine saubere Vorschau ein
     let previewStore = HabitStore()
     previewStore.clearAllData()
     

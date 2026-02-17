@@ -6,7 +6,7 @@ struct MellowHabitsApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            SplashScreenView()
                 .environment(habitStore)
         }
     }

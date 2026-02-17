@@ -11,13 +11,14 @@ class HabitStore {
     init() { load() }
     
     func addHabit(title: String, time: String, goal: Int) {
-        let newHabit = Habit(title: title, time: time, currentPunches: 0, totalGoal: goal)
+        let newHabit = Habit(title: title, time: time, currentPunches: 0, totalGoal: goal, punchDates: [])
         habits.append(newHabit)
     }
     
     func addPunch(to habit: Habit) {
         if habit.currentPunches < habit.totalGoal {
             habit.currentPunches += 1
+            habit.punchDates.append(Date())
             save()
         }
     }
@@ -26,7 +27,6 @@ class HabitStore {
         habits.remove(atOffsets: offsets)
     }
     
-    // MARK: - Alles zurücksetzen
     func clearAllData() {
         habits.removeAll()
         UserDefaults.standard.removeObject(forKey: "SavedHabits")

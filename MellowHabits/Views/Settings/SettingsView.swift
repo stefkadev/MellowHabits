@@ -1,8 +1,11 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @Environment(HabitStore.self) private var store // Verbindung zum Store
+    
     @State private var remindersEnabled = true
     @State private var soundEffectsEnabled = true
+    @State private var showDeleteAlert = false // Für den Sicherheits-Check
     
     // Cozy Palette
     private let mellowAccent = Color(red: 0.98, green: 0.82, blue: 0.25)
@@ -51,7 +54,7 @@ struct SettingsView: View {
                         }
                         .padding(.horizontal, 25)
 
-                        // NEU: Sektion: Rechtliches
+                        // Sektion: Rechtliches
                         VStack(alignment: .leading, spacing: 12) {
                             settingsLabel("Rechtliches")
                             VStack(spacing: 0) {
@@ -77,10 +80,11 @@ struct SettingsView: View {
                         }
                         .padding(.horizontal, 25)
 
+                        // Sektion: Sicherheit
                         VStack(alignment: .leading, spacing: 12) {
                             settingsLabel("Sicherheit")
                             Button(action: {
-                                
+                                showDeleteAlert = true // Zeigt den Bestätigungs-Dialog
                             }) {
                                 HStack {
                                     Image(systemName: "trash.fill")
@@ -92,18 +96,30 @@ struct SettingsView: View {
                                 .padding(.vertical, 18)
                                 .background(Color.white)
                                 .cornerRadius(20)
+                                .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
                             }
                         }
                         .padding(.horizontal, 25)
 
-                        Spacer(minLength: 120)
+                        Spacer(minLength: 150)
                     }
                 }
+            }
+            // Der Alert, der beim Drücken auf Löschen erscheint
+            .alert("Alles löschen?", isPresented: $showDeleteAlert) {
+                Button("Abbrechen", role: .cancel) { }
+                Button("Ja, alles löschen", role: .destructive) {
+                    withAnimation {
+                        store.clearAllData() // Ruft die Funktion im Store auf
+                    }
+                }
+            } message: {
+                Text("Bist du sicher? Alle deine Habits und Erfolge werden dauerhaft entfernt.")
             }
         }
     }
 
-    // --- Komponenten ---
+    // --- Komponenten (Unverändert im Look) ---
 
     private func settingsLabel(_ title: String) -> some View {
         Text(title.uppercased())
@@ -155,7 +171,10 @@ struct SettingsView: View {
     }
 }
 
-// MARK: - Preview (Pflicht)
+// MARK: - Preview
 #Preview {
-    SettingsView()
+    let previewStore = HabitStore()
+    // Optional: Hier ein paar Test-Habits hinzufügen, um zu sehen wie sie gelöscht werden
+    return SettingsView()
+        .environment(previewStore)
 }

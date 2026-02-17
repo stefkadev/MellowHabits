@@ -1,5 +1,12 @@
 import SwiftUI
 
+struct CalendarDay: Identifiable {
+    let id = UUID()
+    let day: String
+    let date: String
+    let fullDate: Date
+}
+
 struct DashboardView: View {
     @Environment(HabitStore.self) private var store
     @State private var showingAddSheet = false
@@ -16,24 +23,43 @@ struct DashboardView: View {
         case fulfilled = "Erledigt"
     }
 
-    // Filtert nur die "kleinen" Aufgaben (Ziel 1) für das Dashboard
+    private func generateDays() -> [CalendarDay] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        return (0...6).reversed().map { offset in
+            let date = calendar.date(byAdding: .day, value: -offset, to: today)!
+            return CalendarDay(
+                day: date.formatted(.dateTime.weekday(.short)),
+                date: date.formatted(.dateTime.day()),
+                fullDate: date
+            )
+        }
+    }
+
     var filteredHabits: [Habit] {
-        let dashboardHabits = store.habits.filter { $0.totalGoal == 1 }
         switch filterSelection {
-        case .all: return dashboardHabits
-        case .unfulfilled: return dashboardHabits.filter { $0.currentPunches < $0.totalGoal }
-        case .fulfilled: return dashboardHabits.filter { $0.currentPunches >= $0.totalGoal }
+        case .all: return store.habits
+        case .unfulfilled: return store.habits.filter { $0.currentPunches < $0.totalGoal }
+        case .fulfilled: return store.habits.filter { $0.currentPunches >= $0.totalGoal }
         }
     }
 
     var body: some View {
+        let allDays = generateDays()
+        
         ZStack {
             cozyBg.ignoresSafeArea()
             
             VStack(alignment: .leading, spacing: 0) {
-                headerSection.padding(.top, 15)
+                HStack {
+                    filterMenu
+                    Spacer()
+                    dateStatus(for: allDays[selectedDateIndex].fullDate)
+                }
+                .padding(.horizontal, 25)
+                .padding(.top, 15)
                 
-                calendarHorizontalBar.padding(.top, 25)
+                calendarBar(days: allDays).padding(.top, 25)
                 
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Merkliste")
@@ -53,15 +79,7 @@ struct DashboardView: View {
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 18) {
                         if filteredHabits.isEmpty {
-                            VStack(spacing: 12) {
-                                Spacer().frame(height: 40)
-                                Image(systemName: "sun.max.fill")
-                                    .font(.system(size: 40))
-                                    .foregroundColor(mellowAccent.opacity(0.5))
-                                Text("Alles erledigt für heute!")
-                                    .font(.serifStyle)
-                                    .foregroundColor(.secondary)
-                            }
+                            emptyState
                         } else {
                             ForEach(filteredHabits) { habit in
                                 HabitRowView(habit: habit)
@@ -71,7 +89,9 @@ struct DashboardView: View {
                             }
                         }
                     }
-                    .padding(.horizontal, 25).padding(.top, 20).padding(.bottom, 150)
+                    .padding(.horizontal, 25)
+                    .padding(.top, 20)
+                    .padding(.bottom, 150) // Platz für den Floating Button
                 }
             }
             
@@ -83,61 +103,55 @@ struct DashboardView: View {
 
     // --- Komponenten ---
 
-    private var headerSection: some View {
-        HStack {
-            Menu {
-                Picker("Filter", selection: $filterSelection) {
-                    ForEach(FilterType.allCases, id: \.self) { type in
-                        Text(type.rawValue).tag(type)
-                    }
+    private var filterMenu: some View {
+        Menu {
+            Picker("Filter", selection: $filterSelection) {
+                ForEach(FilterType.allCases, id: \.self) { type in
+                    Text(type.rawValue).tag(type)
                 }
-            } label: {
-                HStack(spacing: 6) {
-                    Text(filterSelection.rawValue)
-                    Image(systemName: "chevron.down")
-                }
-                .font(.system(size: 14, weight: .bold, design: .rounded))
-                .foregroundColor(.white) // Weiße Schrift
-                .padding(.horizontal, 16).padding(.vertical, 8)
-                .background(mellowAccent) // Mellow Gelber Hintergrund
-                .clipShape(Capsule())
-                .shadow(color: mellowAccent.opacity(0.3), radius: 5, x: 0, y: 3)
             }
-            
-            Spacer()
-            
-            VStack(alignment: .trailing, spacing: 2) {
-                Text("STAND")
-                    .font(.system(size: 10, weight: .black, design: .rounded))
-                    .kerning(1.2).foregroundColor(.secondary.opacity(0.5))
-                Text(selectedDateIndex == 6 ? "Heute" : "1\(selectedDateIndex). Feb")
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
-                    .foregroundColor(deepGold)
+        } label: {
+            HStack(spacing: 6) {
+                Text(filterSelection.rawValue)
+                Image(systemName: "chevron.down")
             }
+            .font(.system(size: 14, weight: .bold, design: .rounded))
+            .foregroundColor(.white)
+            .padding(.horizontal, 16).padding(.vertical, 8)
+            .background(mellowAccent)
+            .clipShape(Capsule())
         }
-        .padding(.horizontal, 25)
     }
 
-    private var calendarHorizontalBar: some View {
+    private func dateStatus(for date: Date) -> some View {
+        VStack(alignment: .trailing, spacing: 2) {
+            Text("STAND")
+                .font(.system(size: 10, weight: .black, design: .rounded))
+                .kerning(1.2).foregroundColor(.secondary.opacity(0.5))
+            Text(date.formatted(.dateTime.day().month(.abbreviated)))
+                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .foregroundColor(deepGold)
+        }
+    }
+
+    private func calendarBar(days: [CalendarDay]) -> some View {
         HStack(spacing: 0) {
-            let days = ["Di", "Mi", "Do", "Fr", "Sa", "So", "Mo"]
-            let dates = ["10", "11", "12", "13", "14", "15", "16"]
-            
-            ForEach(0..<7) { index in
+            ForEach(0..<days.count, id: \.self) { index in
                 let isSelected = (selectedDateIndex == index)
                 let isToday = (index == 6)
                 
                 Button(action: {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
                         selectedDateIndex = index
                     }
                 }) {
                     VStack(spacing: 10) {
-                        Text(days[index])
+                        Text(days[index].day)
                             .font(.system(size: 13, weight: isSelected ? .bold : .medium, design: .rounded))
                             .foregroundColor(isSelected ? .black : .secondary.opacity(0.4))
                         
-                        Text(dates[index])
+                        Text(days[index].date)
                             .font(.system(size: 15, weight: .bold, design: .rounded))
                             .frame(width: 44, height: 44)
                             .background(
@@ -158,10 +172,21 @@ struct DashboardView: View {
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .buttonStyle(PlainButtonStyle())
             }
         }
         .padding(.horizontal, 15)
+    }
+
+    private var emptyState: some View {
+        VStack(spacing: 12) {
+            Spacer().frame(height: 40)
+            Image(systemName: "sun.max.fill")
+                .font(.system(size: 40))
+                .foregroundColor(mellowAccent.opacity(0.5))
+            Text("Alles erledigt für heute!")
+                .font(.serifStyle)
+                .foregroundColor(.secondary)
+        }
     }
 
     private var floatingActionButton: some View {
@@ -169,45 +194,55 @@ struct DashboardView: View {
             Spacer()
             HStack {
                 Spacer()
-                Button(action: { showingAddSheet = true }) {
+                Button(action: {
+                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                    showingAddSheet = true
+                }) {
                     Image(systemName: "plus")
-                        .font(.system(size: 30, weight: .light))
+                        .font(.system(size: 30, weight: .bold)) // Fett für bessere Lesbarkeit mit Ring
                         .foregroundColor(.white)
                         .frame(width: 68, height: 68)
-                        .background(mellowAccent)
-                        .clipShape(Circle())
-                        .shadow(color: mellowAccent.opacity(0.4), radius: 15, x: 0, y: 8)
+                        .background(
+                            Circle()
+                                .fill(mellowAccent)
+                                // Der weiße Ring für Konsistenz mit der Habit-Liste
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color.white, lineWidth: 4)
+                                )
+                        )
+                        .shadow(color: Color.black.opacity(0.15), radius: 15, x: 0, y: 8)
                 }
-                .padding(.trailing, 25).padding(.bottom, 110)
+                .padding(.trailing, 25)
+                .padding(.bottom, 110)
             }
         }
     }
 
     private func ensureInitialElements() {
         if store.habits.isEmpty {
-            store.addHabit(title: "Minecraft-Garten pflegen", time: "Vormittags", goal: 1)
-            store.addHabit(title: "Looten und Leveln", time: "Nachmittags", goal: 1)
-            store.addHabit(title: "Pflanzen gießen", time: "Morgens", goal: 1)
+            store.addHabit(title: "Kohle sammeln", time: "Täglich", goal: 10)
+            store.addHabit(title: "Garten pflegen", time: "Vormittags", goal: 1)
+            store.addHabit(title: "Looten & Leveln", time: "Abends", goal: 5)
         }
     }
-}
-
-// MARK: - Preview (Mit Reset-Funktion)
-#Preview {
-    let previewStore = HabitStore()
-    previewStore.clearAllData() // Verhindert Dubletten beim Neuladen
-    
-    previewStore.addHabit(title: "Minecraft-Garten", time: "Vormittags", goal: 1)
-    previewStore.addHabit(title: "Looten & Leveln", time: "Abends", goal: 1)
-    previewStore.addHabit(title: "Pflanzen gießen", time: "Morgens", goal: 1)
-    previewStore.addHabit(title: "Code Projekt", time: "Täglich", goal: 10)
-    
-    return DashboardView()
-        .environment(previewStore)
 }
 
 extension Font {
     static var serifStyle: Font {
         .system(size: 16, weight: .medium, design: .serif)
     }
+}
+
+// MARK: - Preview
+#Preview {
+    let previewStore = HabitStore()
+    previewStore.clearAllData()
+    
+    previewStore.addHabit(title: "Kohle, Kohle, Kohle sammeln", time: "Täglich", goal: 64)
+    previewStore.addHabit(title: "Minecraft-Garten pflegen", time: "Vormittags", goal: 1)
+    previewStore.addHabit(title: "Looten & Leveln", time: "Abends", goal: 5)
+    
+    return DashboardView()
+        .environment(previewStore)
 }

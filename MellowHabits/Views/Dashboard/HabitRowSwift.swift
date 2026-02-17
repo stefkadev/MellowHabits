@@ -7,7 +7,7 @@ struct HabitRowView: View {
     
     var body: some View {
         HStack(spacing: 16) {
-            // Der Check-Button: Weicher und organischer
+            // Check-Button
             Button(action: {
                 if habit.currentPunches >= habit.totalGoal {
                     habit.currentPunches = 0
@@ -39,16 +39,19 @@ struct HabitRowView: View {
                     .font(.system(size: 18, weight: .semibold, design: .rounded))
                     .foregroundColor(habit.currentPunches >= habit.totalGoal ? .secondary.opacity(0.5) : .black.opacity(0.8))
                     .strikethrough(habit.currentPunches >= habit.totalGoal, color: deepGold.opacity(0.3))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 
                 Text(habit.time)
-                    .font(.system(size: 13, weight: .medium, design: .serif)) // Serif für den Cozy-Touch
+                    .font(.system(size: 13, weight: .medium, design: .serif))
                     .italic()
                     .foregroundColor(.secondary.opacity(0.6))
             }
             
             Spacer()
             
-            // Ein dezentes Blatt oder Herz als Belohnung-Icon
+            // Belohnung-Icon
             Image(systemName: habit.currentPunches >= habit.totalGoal ? "sparkles" : "leaf.fill")
                 .font(.system(size: 14))
                 .foregroundColor(habit.currentPunches >= habit.totalGoal ? deepGold.opacity(0.6) : Color.black.opacity(0.05))
@@ -57,7 +60,7 @@ struct HabitRowView: View {
         .padding(.vertical, 16)
         .background(
             RoundedRectangle(cornerRadius: 28, style: .continuous)
-                .fill(softSand) // Weicher Hintergrund statt Reinweiß
+                .fill(softSand)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 28, style: .continuous)
@@ -66,8 +69,9 @@ struct HabitRowView: View {
     }
 }
 
+// MARK: - Preview
 #Preview {
-    let testHabit = Habit(title: "Die Gemeinde pflegen", time: "Vormittags", currentPunches: 0, totalGoal: 1)
+    let testHabit = Habit(title: "Kohle, Kohle, Kohle sammeln", time: "Täglich", currentPunches: 0, totalGoal: 1)
     
     ZStack {
         Color(red: 0.99, green: 0.98, blue: 0.94).ignoresSafeArea()

@@ -12,6 +12,13 @@ struct PunchCardView: View {
         return progress >= 0.8 && habit.currentPunches < habit.totalGoal
     }
 
+    // Kraftvolle Icons, die zu fast jeder Gewohnheit passen
+    private var stampIcon: String {
+        let icons = ["bolt.fill", "star.fill", "flame.fill", "heart.fill", "crown.fill", "checkmark.seal.fill", "trophy.fill"]
+        let hash = abs(habit.title.hashValue)
+        return icons[hash % icons.count]
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             // Header
@@ -21,7 +28,7 @@ struct PunchCardView: View {
                         Text(habit.title)
                             .font(.system(size: 20, weight: .bold, design: .rounded))
                         if isEightyPercentDone {
-                            Image(systemName: "star.fill")
+                            Image(systemName: "sparkles")
                                 .foregroundColor(deepGold)
                                 .font(.system(size: 14))
                         }
@@ -41,20 +48,46 @@ struct PunchCardView: View {
                     .cornerRadius(12)
             }
             
-            // Das 2x5 Raster (Fixiert auf 5 Spalten)
-            let columns = Array(repeating: GridItem(.flexible(), spacing: 10), count: 5)
+            // Raster
+            let columns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 5)
             
-            LazyVGrid(columns: columns, spacing: 12) {
+            LazyVGrid(columns: columns, spacing: 15) {
                 ForEach(0..<habit.totalGoal, id: \.self) { index in
                     ZStack {
+                        // Der leere Slot
                         Circle()
-                            .fill(index < habit.currentPunches ? mellowAccent : Color.gray.opacity(0.1))
-                            .frame(width: 35, height: 35)
+                            .fill(Color.black.opacity(0.03))
+                            .frame(width: 44, height: 44)
+                            .overlay(
+                                Circle()
+                                    .strokeBorder(Color.black.opacity(0.05), lineWidth: 1)
+                            )
                         
                         if index < habit.currentPunches {
-                            Image(systemName: "checkmark")
-                                .font(.system(size: 12, weight: .black))
-                                .foregroundColor(.white)
+                            // Der Stempel mit "Tinten-Struktur"
+                            Image(systemName: stampIcon)
+                                .font(.system(size: 24, weight: .black))
+                                .foregroundColor(deepGold)
+                                // Der Clou: Eine Maske aus vielen kleinen Punkten für den Stempel-Look
+                                .mask(
+                                    ZStack {
+                                        Image(systemName: stampIcon)
+                                            .font(.system(size: 24, weight: .black))
+                                        
+                                        // "Abnutzung" simulieren
+                                        Circle()
+                                            .stroke(style: StrokeStyle(lineWidth: 2, dash: [0.5, 2]))
+                                            .frame(width: 30, height: 30)
+                                            .blendMode(.destinationOut)
+                                    }
+                                )
+                                .opacity(0.9)
+                                .rotationEffect(.degrees(Double(index * 8).truncatingRemainder(dividingBy: 20) - 10))
+                                .scaleEffect(1.1)
+                                .transition(.asymmetric(
+                                    insertion: .scale(scale: 2.0).combined(with: .opacity),
+                                    removal: .opacity
+                                ))
                         }
                     }
                 }
@@ -63,28 +96,28 @@ struct PunchCardView: View {
             
             // Stempel-Button
             Button(action: {
-                withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
+                UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
                     store.addPunch(to: habit)
                 }
             }) {
-                Text(isEightyPercentDone ? "Fast geschafft! ✨" : (habit.currentPunches >= habit.totalGoal ? "Perfekt!" : "Stempeln"))
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(habit.currentPunches >= habit.totalGoal ? Color.green.opacity(0.15) : (isEightyPercentDone ? deepGold : mellowAccent))
-                    .foregroundColor(habit.currentPunches >= habit.totalGoal ? .green : .white)
-                    .cornerRadius(16)
-                    .shadow(color: habit.currentPunches < habit.totalGoal ? (isEightyPercentDone ? deepGold : mellowAccent).opacity(0.3) : .clear, radius: 8, y: 4)
+                HStack {
+                    Image(systemName: habit.currentPunches >= habit.totalGoal ? "checkmark.seal.fill" : "square.and.pencil")
+                    Text(habit.currentPunches >= habit.totalGoal ? "Karte voll!" : "Stempel aufdrücken")
+                }
+                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+                .background(habit.currentPunches >= habit.totalGoal ? Color.green.opacity(0.15) : (isEightyPercentDone ? deepGold : mellowAccent))
+                .foregroundColor(habit.currentPunches >= habit.totalGoal ? .green : .white)
+                .cornerRadius(16)
             }
             .disabled(habit.currentPunches >= habit.totalGoal)
         }
         .padding(20)
         .background(Color.white)
         .cornerRadius(24)
-        .overlay(
-            RoundedRectangle(cornerRadius: 24)
-                .stroke(isEightyPercentDone ? deepGold.opacity(0.5) : Color.clear, lineWidth: 2)
-        )
+        .shadow(color: Color.black.opacity(0.05), radius: 10, y: 5)
     }
 }
 
@@ -93,10 +126,8 @@ struct PunchCardView: View {
     ZStack {
         Color(red: 0.96, green: 0.93, blue: 0.88).ignoresSafeArea()
         VStack(spacing: 20) {
-            
-            PunchCardView(habit: Habit(title: "10k Schritte", time: "Täglich", currentPunches: 8, totalGoal: 10))
-            
-            PunchCardView(habit: Habit(title: "Code lesen", time: "Morgens", currentPunches: 2, totalGoal: 10))
+            PunchCardView(habit: Habit(title: "Code Projekt", time: "Täglich", currentPunches: 9, totalGoal: 10))
+            PunchCardView(habit: Habit(title: "Sport machen", time: "3x Woche", currentPunches: 3, totalGoal: 10))
         }
         .padding()
     }
