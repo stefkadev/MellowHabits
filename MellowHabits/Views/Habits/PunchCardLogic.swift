@@ -63,7 +63,6 @@ struct PunchCardLogic: View {
                             Image(systemName: activeIcon)
                                 .font(.system(size: 22, weight: .black))
                                 .foregroundColor(deepGold)
-                                // Dein cooler Stempel-Look
                                 .mask(
                                     ZStack {
                                         Image(systemName: activeIcon)
@@ -86,24 +85,33 @@ struct PunchCardLogic: View {
                 }
             }
             .padding(.horizontal, 5)
-            
+
+
             Button(action: {
                 UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                    // Aufruf der zentralen Logik
                     store.addPunch(to: habit)
                 }
             }) {
                 HStack {
                     Image(systemName: habit.currentPunches >= habit.totalGoal ? "checkmark.seal.fill" : "hand.tap.fill")
-                    Text(habit.currentPunches >= habit.totalGoal ? "Karte voll!" : "Stempel aufdrücken")
+                    Text(habit.currentPunches >= habit.totalGoal ? "Karte voll!" : "Stempeln")
                 }
                 .font(.system(size: 16, weight: .bold, design: .rounded))
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 14)
-                .background(habit.currentPunches >= habit.totalGoal ? Color.green.opacity(0.15) : (isEightyPercentDone ? deepGold : mellowAccent))
+                .background(
+                    Group {
+                        if habit.currentPunches >= habit.totalGoal {
+                            Color.green.opacity(0.15)
+                        } else {
+                            deepGold
+                        }
+                    }
+                )
                 .foregroundColor(habit.currentPunches >= habit.totalGoal ? .green : .white)
                 .cornerRadius(16)
+                .shadow(color: (habit.currentPunches >= habit.totalGoal ? Color.clear : deepGold.opacity(0.3)), radius: 8, x: 0, y: 4)
             }
             .disabled(habit.currentPunches >= habit.totalGoal)
         }
