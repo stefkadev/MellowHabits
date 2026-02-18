@@ -28,51 +28,51 @@ struct SettingsView: View {
                         .padding(.horizontal, 25)
                         .padding(.top, 30)
 
-                        // Sektion: Nutzender
+                        // Sektion: Konto (Neu & Vorbereitet)
                         VStack(alignment: .leading, spacing: 12) {
-                            settingsLabel("Nutzender")
+                            settingsLabel("Konto")
                             VStack(spacing: 0) {
                                 settingsRow(icon: "person.crop.circle.fill", title: "Profil", value: "stefka_gel")
-                                Divider().padding(.leading, 50)
+                                Divider().padding(.leading, 60)
+                                settingsRow(icon: "icloud.fill", title: "Speicherort", value: "Lokal (Gerät)", showChevron: false)
+                            }
+                            .background(Color.white)
+                            .cornerRadius(20)
+                        }
+                        .padding(.horizontal, 25)
+
+                        // Sektion: Mitteilungen & Töne
+                        VStack(alignment: .leading, spacing: 12) {
+                            settingsLabel("Mitteilungen")
+                            VStack(spacing: 0) {
                                 toggleRow(icon: "bell.fill", title: "Erinnerungen", isOn: $remindersEnabled)
-                            }
-                            .background(Color.white)
-                            .cornerRadius(20)
-                        }
-                        .padding(.horizontal, 25)
-
-                        // Sektion: Erlebnis
-                        VStack(alignment: .leading, spacing: 12) {
-                            settingsLabel("Erlebnis")
-                            VStack(spacing: 0) {
+                                Divider().padding(.leading, 60)
                                 toggleRow(icon: "speaker.wave.2.fill", title: "Sound Effekte", isOn: $soundEffectsEnabled)
-                                Divider().padding(.leading, 50)
-                                settingsRow(icon: "archivebox.fill", title: "Archivierte Punchcards")
                             }
                             .background(Color.white)
                             .cornerRadius(20)
                         }
                         .padding(.horizontal, 25)
 
-                        // Sektion: Rechtliches
+                        // Sektion: Support & Feedback
                         VStack(alignment: .leading, spacing: 12) {
-                            settingsLabel("Rechtliches")
+                            settingsLabel("Hilfe")
                             VStack(spacing: 0) {
-                                settingsRow(icon: "doc.text.fill", title: "Datenschutzerklärung")
-                                Divider().padding(.leading, 50)
-                                settingsRow(icon: "info.bubble.fill", title: "Impressum")
+                                settingsRow(icon: "envelope.fill", title: "Feedback senden")
+                                Divider().padding(.leading, 60)
+                                settingsRow(icon: "star.fill", title: "App bewerten")
                             }
                             .background(Color.white)
                             .cornerRadius(20)
                         }
                         .padding(.horizontal, 25)
 
-                        // Sektion: Info
+                        // Sektion: Rechtliches & Info
                         VStack(alignment: .leading, spacing: 12) {
                             settingsLabel("Info")
                             VStack(spacing: 0) {
                                 settingsRow(icon: "paintpalette.fill", title: "Design", value: "Mellow Mode")
-                                Divider().padding(.leading, 50)
+                                Divider().padding(.leading, 60)
                                 settingsRow(icon: "info.circle.fill", title: "Version", value: "1.0.4", showChevron: false)
                             }
                             .background(Color.white)
@@ -80,12 +80,9 @@ struct SettingsView: View {
                         }
                         .padding(.horizontal, 25)
 
-                        // Sektion: Sicherheit
-                        VStack(alignment: .leading, spacing: 12) {
-                            settingsLabel("Sicherheit")
-                            Button(action: {
-                                showDeleteAlert = true
-                            }) {
+                        // Sektion: Gefahrzone & Logout
+                        VStack(alignment: .center, spacing: 16) {
+                            Button(action: { showDeleteAlert = true }) {
                                 HStack {
                                     Image(systemName: "trash.fill")
                                     Text("Alle Daten zurücksetzen")
@@ -98,6 +95,13 @@ struct SettingsView: View {
                                 .cornerRadius(20)
                                 .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 5)
                             }
+                            
+                            Button(action: { /* Späterer Logout-Code */ }) {
+                                Text("Abmelden")
+                                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                                    .foregroundColor(.black.opacity(0.3))
+                                    .padding(.top, 10)
+                            }
                         }
                         .padding(.horizontal, 25)
 
@@ -105,13 +109,10 @@ struct SettingsView: View {
                     }
                 }
             }
-
             .alert("Alles löschen?", isPresented: $showDeleteAlert) {
                 Button("Abbrechen", role: .cancel) { }
                 Button("Ja, alles löschen", role: .destructive) {
-                    withAnimation {
-                        store.clearAllData()
-                    }
+                    store.clearAllData()
                 }
             } message: {
                 Text("Bist du sicher? Alle deine Habits und Erfolge werden dauerhaft entfernt.")
@@ -119,55 +120,51 @@ struct SettingsView: View {
         }
     }
 
-    // --- Komponenten (Unverändert im Look) ---
+    // --- Komponenten ---
 
     private func settingsLabel(_ title: String) -> some View {
         Text(title.uppercased())
             .font(.system(size: 12, weight: .bold, design: .rounded))
-            .foregroundColor(.secondary.opacity(0.6))
+            .foregroundColor(.black.opacity(0.4))
             .padding(.leading, 10)
     }
 
     private func toggleRow(icon: String, title: String, isOn: Binding<Bool>) -> some View {
         HStack {
             Image(systemName: icon)
-                .foregroundColor(mellowAccent)
+                .font(.system(size: 18))
+                .foregroundColor(deepGold)
                 .frame(width: 35)
             Toggle(title, isOn: isOn)
-                .font(.system(size: 16, weight: .medium, design: .rounded))
+                .font(.system(size: 16, weight: .semibold, design: .rounded))
+                .foregroundColor(.black.opacity(0.8))
                 .tint(mellowAccent)
         }
-        .padding(.vertical, 14)
-        .padding(.horizontal, 20)
+        .padding(.vertical, 14).padding(.horizontal, 20)
     }
 
     private func settingsRow(icon: String, title: String, value: String? = nil, showChevron: Bool = true) -> some View {
         HStack(spacing: 15) {
             Image(systemName: icon)
                 .font(.system(size: 18))
-                .foregroundColor(mellowAccent)
+                .foregroundColor(deepGold)
                 .frame(width: 35)
-            
             Text(title)
-                .font(.system(size: 16, weight: .medium, design: .rounded))
-                .foregroundColor(.black.opacity(0.7))
-            
+                .font(.system(size: 16, weight: .semibold, design: .rounded))
+                .foregroundColor(.black.opacity(0.8))
             Spacer()
-            
             if let value = value {
                 Text(value)
-                    .font(.system(size: 15, design: .rounded))
-                    .foregroundColor(.secondary)
+                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                    .foregroundColor(deepGold)
             }
-            
             if showChevron {
                 Image(systemName: "chevron.right")
                     .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(.gray.opacity(0.3))
+                    .foregroundColor(.black.opacity(0.2))
             }
         }
-        .padding(.vertical, 18)
-        .padding(.horizontal, 20)
+        .padding(.vertical, 18).padding(.horizontal, 20)
     }
 }
 
