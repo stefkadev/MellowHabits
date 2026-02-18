@@ -10,9 +10,18 @@ class HabitStore {
     
     init() { load() }
     
-    func addHabit(title: String, time: String, goal: Int) {
-        let newHabit = Habit(title: title, time: time, currentPunches: 0, totalGoal: goal, punchDates: [])
-        habits.append(newHabit)
+    func addHabit(title: String, time: String, icon: String = "star.fill", goal: Int) {
+        if !habits.contains(where: { $0.title == title }) {
+            let newHabit = Habit(
+                title: title,
+                time: time,
+                icon: icon,
+                currentPunches: 0,
+                totalGoal: goal,
+                punchDates: []
+            )
+            habits.append(newHabit)
+        }
     }
     
     func addPunch(to habit: Habit) {
@@ -27,6 +36,10 @@ class HabitStore {
         habits.remove(atOffsets: offsets)
     }
     
+    func deleteHabit(_ habit: Habit) {
+        habits.removeAll { $0.id == habit.id }
+    }
+    
     func clearAllData() {
         habits.removeAll()
         UserDefaults.standard.removeObject(forKey: "SavedHabits")
@@ -37,7 +50,7 @@ class HabitStore {
             let data = try JSONEncoder().encode(habits)
             UserDefaults.standard.set(data, forKey: "SavedHabits")
         } catch {
-            print("Fehler beim Speichern")
+            print("Fehler beim Speichern: \(error)")
         }
     }
     
@@ -47,7 +60,7 @@ class HabitStore {
                 let decoded = try JSONDecoder().decode([Habit].self, from: data)
                 self.habits = decoded
             } catch {
-                print("Fehler beim Laden")
+                print("Fehler beim Laden: \(error)")
             }
         }
     }

@@ -11,12 +11,18 @@ struct HabitDetailView: View {
     private let cozyBg = Color(red: 0.96, green: 0.93, blue: 0.88)
     private let softSand = Color(red: 0.98, green: 0.96, blue: 0.92)
 
+    // Optionen für Zeitpunkt
+    private let timeOptions = ["1x Tag", "1x Woche", "3x Woche", "Unregelmäßig"]
+    
+    // Auswahl an Icons
+    private let availableIcons = ["star.fill", "heart.fill", "bolt.fill", "figure.run", "leaf.fill", "flame.fill", "moon.fill", "drop.fill", "trophy.fill", "sun.max.fill"]
+
     var body: some View {
         ZStack {
             cozyBg.ignoresSafeArea()
             
             ScrollView {
-                VStack(alignment: .leading, spacing: 30) {
+                VStack(alignment: .leading, spacing: 25) {
                     
                     // --- Sektion: Titel ---
                     VStack(alignment: .leading, spacing: 10) {
@@ -24,32 +30,76 @@ struct HabitDetailView: View {
                         
                         TextField("Titel der Gewohnheit", text: $habit.title)
                             .font(.system(size: 18, weight: .bold, design: .rounded))
+                            .foregroundColor(.black.opacity(0.8))
                             .padding()
                             .background(softSand)
                             .cornerRadius(20)
                             .overlay(inputBorder)
                     }
                     
-                    // --- Sektion: Zeitpunkt ---
+                    // --- Sektion: Zeitpunkt (Häufigkeit) ---
                     VStack(alignment: .leading, spacing: 10) {
-                        headerLabel("ZEITPUNKT")
+                        headerLabel("HÄUFIGKEIT")
                         
-                        TextField("z.B. Morgens, Täglich...", text: $habit.time)
-                            .font(.system(size: 16, weight: .medium, design: .rounded))
-                            .padding()
-                            .background(softSand)
-                            .cornerRadius(20)
-                            .overlay(inputBorder)
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 10) {
+                                ForEach(timeOptions, id: \.self) { option in
+                                    Button {
+                                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                        habit.time = option
+                                    } label: {
+                                        Text(option)
+                                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                                            .padding(.horizontal, 16)
+                                            .padding(.vertical, 10)
+                                            .background(habit.time == option ? deepGold : softSand)
+                                            .foregroundColor(habit.time == option ? .white : deepGold.opacity(0.7))
+                                            .cornerRadius(15)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 15)
+                                                    .stroke(deepGold.opacity(0.1), lineWidth: 1)
+                                            )
+                                    }
+                                }
+                            }
+                        }
                     }
 
-                    // --- Sektion: Fortschritt (Stepper) ---
+                    // --- Sektion: Icon Auswahl ---
                     VStack(alignment: .leading, spacing: 10) {
-                        headerLabel("FORTSCHRITT & ZIEL")
+                        headerLabel("STEMPEL-SYMBOL")
+                        
+                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 45))], spacing: 15) {
+                            ForEach(availableIcons, id: \.self) { iconName in
+                                Button {
+                                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                    habit.icon = iconName
+                                } label: {
+                                    Image(systemName: iconName)
+                                        .font(.system(size: 20))
+                                        .frame(width: 45, height: 45)
+                                        .background(habit.icon == iconName ? mellowAccent : softSand)
+                                        .foregroundColor(habit.icon == iconName ? .white : deepGold.opacity(0.6))
+                                        .clipShape(Circle())
+                                        .overlay(
+                                            Circle()
+                                                .stroke(deepGold.opacity(0.1), lineWidth: 1)
+                                        )
+                                }
+                            }
+                        }
+                        .padding()
+                        .background(softSand)
+                        .cornerRadius(20)
+                        .overlay(inputBorder)
+                    }
+
+                    // --- Sektion: Fortschritt ---
+                    VStack(alignment: .leading, spacing: 10) {
+                        headerLabel("MANUELLER FORTSCHRITT (ZIEL: 10)")
                         
                         VStack(spacing: 0) {
-                            stepperRow(title: "Aktuelle Stempel", value: $habit.currentPunches, range: 0...habit.totalGoal, icon: "checkmark.seal.fill")
-                            Divider().background(deepGold.opacity(0.1)).padding(.horizontal)
-                            stepperRow(title: "Gesamtziel", value: $habit.totalGoal, range: 1...25, icon: "target")
+                            stepperRow(title: "Bereits erledigt", value: $habit.currentPunches, range: 0...10, icon: habit.icon)
                         }
                         .background(softSand)
                         .cornerRadius(20)
@@ -57,39 +107,53 @@ struct HabitDetailView: View {
                     }
                     
                     // --- Footer / Löschen ---
-                    VStack(spacing: 15) {
-                        Divider().background(deepGold.opacity(0.1))
-                            .padding(.horizontal, 40)
-                        
-                        Button(role: .destructive) {
-                            dismiss()
-                        } label: {
-                            Text("Gewohnheit löschen")
-                                .font(.system(size: 14, weight: .bold, design: .rounded))
-                                .foregroundColor(.red.opacity(0.7))
+                    if store.habits.contains(where: { $0.id == habit.id }) {
+                        VStack(spacing: 15) {
+                            Divider().background(deepGold.opacity(0.1))
+                                .padding(.horizontal, 40)
+                            
+                            Button(role: .destructive) {
+                                withAnimation {
+                                    store.habits.removeAll { $0.id == habit.id }
+                                    dismiss()
+                                }
+                            } label: {
+                                Text("Punchcard löschen")
+                                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                                    .foregroundColor(.red.opacity(0.7))
+                            }
                         }
+                        .padding(.top, 10)
+                        .frame(maxWidth: .infinity)
                     }
-                    .padding(.top, 20)
-                    .frame(maxWidth: .infinity)
                 }
                 .padding(25)
             }
         }
-        .navigationTitle("Bearbeiten")
+        .navigationTitle(habit.title.isEmpty ? "Neue Punchcard" : "Details")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            if habit.totalGoal != 10 { habit.totalGoal = 10 }
+            if habit.time.isEmpty { habit.time = "1x Tag" }
+        }
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
                 Button("Fertig") {
                     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                    store.save()
+                    // Falls das Habit neu ist (noch nicht im Store), jetzt hinzufügen
+                    if !store.habits.contains(where: { $0.id == habit.id }) {
+                        store.habits.append(habit)
+                    }
                     dismiss()
                 }
                 .font(.system(size: 16, weight: .bold, design: .rounded))
-                .foregroundColor(deepGold)
+                .foregroundColor(habit.title.isEmpty ? Color.gray : deepGold)
+                .disabled(habit.title.isEmpty) // Verhindert leere Einträge
             }
         }
     }
 
+    // --- Hilfs-Views ---
     private func headerLabel(_ text: String) -> some View {
         Text(text)
             .font(.system(size: 11, weight: .black, design: .rounded))
@@ -151,7 +215,8 @@ struct HabitDetailView: View {
 // MARK: - Preview
 #Preview {
     NavigationStack {
-        HabitDetailView(habit: Habit(title: "Code Projekt", time: "10:00 Uhr", currentPunches: 3, totalGoal: 10))
-            .environment(HabitStore())
+        let store = HabitStore()
+        HabitDetailView(habit: Habit(title: "Vorschau", time: "1x Tag", icon: "star.fill", currentPunches: 2, totalGoal: 10))
+            .environment(store)
     }
 }
