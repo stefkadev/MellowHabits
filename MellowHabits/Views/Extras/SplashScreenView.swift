@@ -5,7 +5,7 @@ struct SplashScreenView: View {
     @State private var opacity = 0.5
     @State private var size = 0.8
     
-    // Unsere Design-Farben
+    // Design-Farben
     private let deepGold = Color(red: 0.75, green: 0.55, blue: 0.10)
     private let cozyBg = Color(red: 0.96, green: 0.93, blue: 0.88)
     

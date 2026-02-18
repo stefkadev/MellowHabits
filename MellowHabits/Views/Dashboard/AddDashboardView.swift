@@ -5,16 +5,15 @@ struct AddDashboardView: View {
     @Environment(\.dismiss) private var dismiss
     
     @State private var title = ""
-    @State private var selectedTime = "Morgens" // Standardauswahl
-    private let goal = 1
+    @State private var selectedTime = "Morgens"
+    private let goal = 1 // Dashboard-Items sind einfache Checklisten-Einträge
     
-    // Farbschema (angepasst an AddHabitView)
+    // Farbschema
     private let mellowAccent = Color(red: 0.98, green: 0.82, blue: 0.25)
     private let deepGold = Color(red: 0.75, green: 0.55, blue: 0.10)
     private let cozyBg = Color(red: 0.96, green: 0.93, blue: 0.88)
     private let softSand = Color(red: 0.98, green: 0.96, blue: 0.92)
     
-    // Dashboard Optionen
     private let timeOptions = ["Morgens", "Mittags", "Abends"]
 
     var body: some View {
@@ -23,7 +22,7 @@ struct AddDashboardView: View {
                 cozyBg.ignoresSafeArea()
                 
                 VStack(spacing: 0) {
-                    // Custom Header (Look von AddHabitView/Dashboard)
+                    // --- Custom Navigation Bar ---
                     HStack {
                         Button("Abbrechen") { dismiss() }
                             .font(.system(size: 16, weight: .medium, design: .rounded))
@@ -64,7 +63,7 @@ struct AddDashboardView: View {
                                     .overlay(inputBorder)
                             }
                             
-                            // --- Sektion: Zeitpunkt (Die neuen Buttons) ---
+                            // --- Sektion: Zeitpunkt ---
                             VStack(alignment: .leading, spacing: 10) {
                                 headerLabel("ZEITPUNKT")
                                 
@@ -90,7 +89,7 @@ struct AddDashboardView: View {
                                 }
                             }
                             
-                            // Deko-Element unten
+                            // Deko-Footer
                             VStack(spacing: 12) {
                                 Divider().background(deepGold.opacity(0.1))
                                     .padding(.horizontal, 40)
@@ -116,9 +115,7 @@ struct AddDashboardView: View {
     
     private func saveAndDismiss() {
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-        // Wir speichern hier mit einem Standard-Icon (z.B. List),
-        // da Dashboard-Einträge meist schnell gehen sollen.
-        store.addHabit(title: title, time: selectedTime, goal: goal)
+        store.addHabit(title: title, time: selectedTime, icon: "checklist", goal: goal)
         dismiss()
     }
     
@@ -136,7 +133,7 @@ struct AddDashboardView: View {
     }
 }
 
-// MARK: - Preview
+// MARK: - Preview (Pflicht für alle Seiten)
 #Preview {
     AddDashboardView()
         .environment(HabitStore())

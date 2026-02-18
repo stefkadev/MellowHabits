@@ -36,9 +36,8 @@ struct DashboardView: View {
         }
     }
 
-    // --- GEÄNDERTER FILTER ---
+    // Filtert nur Habits mit Ziel < 10 (Merkliste)
     var filteredHabits: [Habit] {
-        // Wir nehmen nur Habits, die KEINE Punchcards sind (Ziel < 10)
         let dashboardOnlyHabits = store.habits.filter { $0.totalGoal < 10 }
         
         switch filterSelection {
@@ -106,7 +105,7 @@ struct DashboardView: View {
             AddDashboardView()
                 .environment(store)
         }
-    } // <-- Hier war die Klammer weg, jetzt ist sie wieder da!
+    }
 
     // --- Private Hilfskomponenten ---
 
@@ -221,27 +220,9 @@ struct DashboardView: View {
             }
         }
     }
-
-    private func ensureInitialElements() {
-        if store.habits.isEmpty {
-            // NUR einfache Habits mit Ziel 1 für das Dashboard
-            store.addHabit(title: "Lurchtanz üben", time: "Vormittags", goal: 1)
-            store.addHabit(title: "Minecraft-Garten pflegen", time: "Mittags", goal: 1)
-            store.addHabit(title: "Looten & Leveln", time: "Abends", goal: 1)
-            
-            let hiddenPunchcard = Habit(
-                        title: "Kohle sammeln",
-                        time: "Täglich",
-                        icon: "bitcoinsign.circle.fill",
-                        currentPunches: 0,
-                        totalGoal: 10
-                    )
-                    store.habits.append(hiddenPunchcard)
-        }
-    }
 }
 
-// MARK: - HabitRowView (unverändert)
+// MARK: - HabitRowView
 
 struct HabitRowView: View {
     var habit: Habit
@@ -314,15 +295,10 @@ struct HabitRowView: View {
     }
 }
 
-// MARK: - Preview
+// MARK: - Preview mit dem zentralen Store
 
 #Preview {
     let previewStore = HabitStore()
-    
-    let visible = Habit(title: "Sichtbar", time: "Checkliste", icon: "checkmark", currentPunches: 0, totalGoal: 1)
-    let hidden = Habit(title: "Versteckte Punchcard", time: "Punches", icon: "star", currentPunches: 5, totalGoal: 10)
-        
-    previewStore.habits = [visible, hidden]
 
     return DashboardView()
         .environment(previewStore)

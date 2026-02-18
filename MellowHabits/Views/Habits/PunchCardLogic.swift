@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct PunchCardLogic: View {
-    var habit: Habit
+    @Bindable var habit: Habit
     @Environment(HabitStore.self) private var store
     
     private let mellowAccent = Color(red: 0.98, green: 0.82, blue: 0.25)
@@ -31,10 +31,9 @@ struct PunchCardLogic: View {
                         }
                     }
                     
-                    // --- HIER IST DIE ANPASSUNG ---
                     Label(habit.time, systemImage: "clock")
-                        .font(.system(size: 13, weight: .bold, design: .rounded)) // Fettere Schrift
-                        .foregroundColor(deepGold.opacity(0.7)) // Gold statt grau
+                        .font(.system(size: 13, weight: .bold, design: .rounded))
+                        .foregroundColor(deepGold.opacity(0.7))
                 }
                 Spacer()
                 
@@ -64,6 +63,7 @@ struct PunchCardLogic: View {
                             Image(systemName: activeIcon)
                                 .font(.system(size: 22, weight: .black))
                                 .foregroundColor(deepGold)
+                                // Dein cooler Stempel-Look
                                 .mask(
                                     ZStack {
                                         Image(systemName: activeIcon)
@@ -90,6 +90,7 @@ struct PunchCardLogic: View {
             Button(action: {
                 UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                    // Aufruf der zentralen Logik
                     store.addPunch(to: habit)
                 }
             }) {
@@ -118,7 +119,6 @@ struct PunchCardLogic: View {
         Color(red: 0.96, green: 0.93, blue: 0.88).ignoresSafeArea()
         VStack(spacing: 20) {
             PunchCardLogic(habit: Habit(title: "Code Projekt", time: "1x Tag", icon: "laptopcomputer", currentPunches: 9, totalGoal: 10))
-            PunchCardLogic(habit: Habit(title: "Sport machen", time: "3x Woche", icon: "figure.run", currentPunches: 3, totalGoal: 10))
         }
         .padding()
     }

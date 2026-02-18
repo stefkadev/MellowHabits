@@ -65,7 +65,7 @@ struct ContentView: View {
     }
 }
 
-// MARK: - Preview (Pflicht)
+// MARK: - Preview 
 #Preview {
     let previewStore = HabitStore()
     previewStore.clearAllData()

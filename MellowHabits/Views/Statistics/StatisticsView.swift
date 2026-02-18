@@ -9,7 +9,6 @@ struct StatisticsView: View {
     private let cozyBg = Color(red: 0.96, green: 0.93, blue: 0.88)
     private let deepGold = Color(red: 0.75, green: 0.55, blue: 0.10)
 
-    // Berechnet die Stempel pro Tag für die letzten 7 Tage
     private var weeklyActivity: [ActivityData] {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
@@ -27,7 +26,6 @@ struct StatisticsView: View {
         weeklyActivity.reduce(0) { $0 + $1.count }
     }
     
-    // 80% Logik für die Hausarbeit
     private var consistencyRate: Double {
         let daysWithActivity = weeklyActivity.filter { $0.count > 0 }.count
         return (Double(daysWithActivity) / 7.0) * 100
@@ -79,7 +77,7 @@ struct StatisticsView: View {
         }
     }
 
-    // --- Komponenten (innerhalb der Struct, außerhalb vom body) ---
+    // --- Komponenten ---
 
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -182,7 +180,7 @@ struct ActivityData: Identifiable {
     store.clearAllData()
     let h = Habit(title: "Check", time: "Morgens", totalGoal: 10)
     store.habits.append(h)
-    // Generiert künstliche Daten für die Preview
+    
     for i in 0...5 {
         if let d = Calendar.current.date(byAdding: .day, value: -i, to: Date()) {
             h.punchDates.append(d)
