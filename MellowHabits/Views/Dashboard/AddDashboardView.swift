@@ -1,25 +1,32 @@
 import SwiftUI
 
-struct AddHabitView: View {
+struct AddDashboardView: View {
     @Environment(HabitStore.self) private var store
     @Environment(\.dismiss) private var dismiss
     
     @State private var title = ""
-    @State private var time = Date()
+    @State private var selectedTime = "Morgens" // Standardauswahl
     private let goal = 1
     
+    // Farbschema (angepasst an AddHabitView)
+    private let mellowAccent = Color(red: 0.98, green: 0.82, blue: 0.25)
     private let deepGold = Color(red: 0.75, green: 0.55, blue: 0.10)
     private let cozyBg = Color(red: 0.96, green: 0.93, blue: 0.88)
     private let softSand = Color(red: 0.98, green: 0.96, blue: 0.92)
     
+    // Dashboard Optionen
+    private let timeOptions = ["Morgens", "Mittags", "Abends"]
+
     var body: some View {
         NavigationStack {
             ZStack {
                 cozyBg.ignoresSafeArea()
                 
                 VStack(spacing: 0) {
+                    // Custom Header (Look von AddHabitView/Dashboard)
                     HStack {
                         Button("Abbrechen") { dismiss() }
+                            .font(.system(size: 16, weight: .medium, design: .rounded))
                             .foregroundColor(.secondary)
                         
                         Spacer()
@@ -30,65 +37,67 @@ struct AddHabitView: View {
                         
                         Spacer()
                         
-                        Button("Hinzufügen") {
+                        Button("Fertig") {
                             saveAndDismiss()
                         }
-                        .fontWeight(.bold)
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
                         .foregroundColor(title.isEmpty ? .secondary : deepGold)
                         .disabled(title.isEmpty)
                     }
-                    .padding(.horizontal, 20)
+                    .padding(.horizontal, 25)
                     .padding(.vertical, 15)
                     .background(cozyBg)
 
                     ScrollView {
                         VStack(alignment: .leading, spacing: 30) {
                             
-                            // Eingabe: Titel
+                            // --- Sektion: Titel ---
                             VStack(alignment: .leading, spacing: 10) {
                                 headerLabel("WAS STEHT AN?")
                                 
                                 TextField("z.B. Minecraft-Garten pflegen...", text: $title)
-                                    .font(.system(size: 18, weight: .medium, design: .rounded))
+                                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                                    .foregroundColor(.black.opacity(0.8))
                                     .padding()
                                     .background(softSand)
                                     .cornerRadius(20)
                                     .overlay(inputBorder)
                             }
                             
-                            // Eingabe: Zeitpunkt
+                            // --- Sektion: Zeitpunkt (Die neuen Buttons) ---
                             VStack(alignment: .leading, spacing: 10) {
                                 headerLabel("ZEITPUNKT")
                                 
-                                HStack {
-                                    Image(systemName: "clock.fill")
-                                        .foregroundColor(deepGold.opacity(0.5))
-                                        .padding(.leading, 15)
-                                    
-                                    DatePicker("Uhrzeit", selection: $time, displayedComponents: .hourAndMinute)
-                                        .font(.system(size: 16, weight: .semibold, design: .rounded))
-                                        .labelsHidden()
-                                        .padding()
-                                    
-                                    Text("Uhr")
-                                        .font(.system(size: 14, weight: .bold, design: .rounded))
-                                        .foregroundColor(.secondary)
-                                        .padding(.trailing, 15)
+                                HStack(spacing: 12) {
+                                    ForEach(timeOptions, id: \.self) { option in
+                                        Button {
+                                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                            selectedTime = option
+                                        } label: {
+                                            Text(option)
+                                                .font(.system(size: 14, weight: .bold, design: .rounded))
+                                                .frame(maxWidth: .infinity)
+                                                .padding(.vertical, 14)
+                                                .background(selectedTime == option ? deepGold : softSand)
+                                                .foregroundColor(selectedTime == option ? .white : deepGold.opacity(0.7))
+                                                .cornerRadius(15)
+                                                .overlay(
+                                                    RoundedRectangle(cornerRadius: 15)
+                                                        .stroke(deepGold.opacity(0.1), lineWidth: 1)
+                                                )
+                                        }
+                                    }
                                 }
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(softSand)
-                                .cornerRadius(20)
-                                .overlay(inputBorder)
                             }
                             
-                            // Deko-Element unten, damit es nicht zu kahl aussieht
+                            // Deko-Element unten
                             VStack(spacing: 12) {
                                 Divider().background(deepGold.opacity(0.1))
                                     .padding(.horizontal, 40)
                                 
                                 HStack(spacing: 6) {
                                     Image(systemName: "leaf.fill")
-                                    Text("Einfach mal machen.")
+                                    Text("Done is better than perfect!")
                                 }
                                 .font(.system(size: 13, weight: .medium, design: .serif))
                                 .italic()
@@ -101,14 +110,15 @@ struct AddHabitView: View {
                     }
                 }
             }
-            .toolbar(.hidden) // Wir nutzen unseren eigenen Header oben
+            .toolbar(.hidden)
         }
     }
     
     private func saveAndDismiss() {
-        // Formatiert die Zeit als String für den Store
-        let timeString = time.formatted(date: .omitted, time: .shortened)
-        store.addHabit(title: title, time: timeString, goal: goal)
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        // Wir speichern hier mit einem Standard-Icon (z.B. List),
+        // da Dashboard-Einträge meist schnell gehen sollen.
+        store.addHabit(title: title, time: selectedTime, goal: goal)
         dismiss()
     }
     
@@ -126,8 +136,8 @@ struct AddHabitView: View {
     }
 }
 
-// Preview Funktion eingebaut
+// MARK: - Preview
 #Preview {
-    AddHabitView()
+    AddDashboardView()
         .environment(HabitStore())
 }

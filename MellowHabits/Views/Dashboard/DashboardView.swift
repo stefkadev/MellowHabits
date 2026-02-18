@@ -36,11 +36,18 @@ struct DashboardView: View {
         }
     }
 
+    // --- GEÄNDERTER FILTER ---
     var filteredHabits: [Habit] {
+        // Wir nehmen nur Habits, die KEINE Punchcards sind (Ziel < 10)
+        let dashboardOnlyHabits = store.habits.filter { $0.totalGoal < 10 }
+        
         switch filterSelection {
-        case .all: return store.habits
-        case .unfulfilled: return store.habits.filter { $0.currentPunches < $0.totalGoal }
-        case .fulfilled: return store.habits.filter { $0.currentPunches >= $0.totalGoal }
+        case .all:
+            return dashboardOnlyHabits
+        case .unfulfilled:
+            return dashboardOnlyHabits.filter { $0.currentPunches < $0.totalGoal }
+        case .fulfilled:
+            return dashboardOnlyHabits.filter { $0.currentPunches >= $0.totalGoal }
         }
     }
 
@@ -95,9 +102,11 @@ struct DashboardView: View {
             
             floatingActionButton.zIndex(1)
         }
-        .sheet(isPresented: $showingAddSheet) { AddHabitView() }
-        .onAppear { ensureInitialElements() }
-    }
+        .sheet(isPresented: $showingAddSheet) {
+            AddDashboardView()
+                .environment(store)
+        }
+    } // <-- Hier war die Klammer weg, jetzt ist sie wieder da!
 
     // --- Private Hilfskomponenten ---
 
@@ -215,14 +224,24 @@ struct DashboardView: View {
 
     private func ensureInitialElements() {
         if store.habits.isEmpty {
-            store.addHabit(title: "Kohle sammeln", time: "Täglich", goal: 10)
-            store.addHabit(title: "Garten pflegen", time: "Vormittags", goal: 1)
-            store.addHabit(title: "Looten & Leveln", time: "Abends", goal: 5)
+            // NUR einfache Habits mit Ziel 1 für das Dashboard
+            store.addHabit(title: "Lurchtanz üben", time: "Vormittags", goal: 1)
+            store.addHabit(title: "Minecraft-Garten pflegen", time: "Mittags", goal: 1)
+            store.addHabit(title: "Looten & Leveln", time: "Abends", goal: 1)
+            
+            let hiddenPunchcard = Habit(
+                        title: "Kohle sammeln",
+                        time: "Täglich",
+                        icon: "bitcoinsign.circle.fill",
+                        currentPunches: 0,
+                        totalGoal: 10
+                    )
+                    store.habits.append(hiddenPunchcard)
         }
     }
 }
 
-// MARK: - HabitRowView
+// MARK: - HabitRowView (unverändert)
 
 struct HabitRowView: View {
     var habit: Habit
@@ -299,6 +318,11 @@ struct HabitRowView: View {
 
 #Preview {
     let previewStore = HabitStore()
+    
+    let visible = Habit(title: "Sichtbar", time: "Checkliste", icon: "checkmark", currentPunches: 0, totalGoal: 1)
+    let hidden = Habit(title: "Versteckte Punchcard", time: "Punches", icon: "star", currentPunches: 5, totalGoal: 10)
+        
+    previewStore.habits = [visible, hidden]
 
     return DashboardView()
         .environment(previewStore)

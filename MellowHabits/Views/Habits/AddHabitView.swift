@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct HabitDetailView: View {
+struct AddHabitView: View {
     @Bindable var habit: Habit
     @Environment(HabitStore.self) private var store
     @Environment(\.dismiss) private var dismiss
@@ -96,7 +96,7 @@ struct HabitDetailView: View {
 
                     // --- Sektion: Fortschritt ---
                     VStack(alignment: .leading, spacing: 10) {
-                        headerLabel("MANUELLER FORTSCHRITT (ZIEL: 10)")
+                        headerLabel("AKTUELLER FORTSCHRITT (ZIEL: 10)")
                         
                         VStack(spacing: 0) {
                             stepperRow(title: "Bereits erledigt", value: $habit.currentPunches, range: 0...10, icon: habit.icon)
@@ -176,6 +176,7 @@ struct HabitDetailView: View {
             
             Text(title)
                 .font(.system(size: 16, weight: .semibold, design: .rounded))
+                .foregroundColor(.black.opacity(0.8))
             
             Spacer()
             
@@ -194,6 +195,7 @@ struct HabitDetailView: View {
                 Text("\(value.wrappedValue)")
                     .font(.system(size: 18, weight: .bold, design: .monospaced))
                     .frame(width: 30)
+                    .foregroundColor(.black)
                 
                 Button(action: {
                     if value.wrappedValue < range.upperBound {
@@ -216,7 +218,7 @@ struct HabitDetailView: View {
 #Preview {
     NavigationStack {
         let store = HabitStore()
-        HabitDetailView(habit: Habit(title: "Vorschau", time: "1x Tag", icon: "star.fill", currentPunches: 2, totalGoal: 10))
+        AddHabitView(habit: Habit(title: "Vorschau", time: "1x Tag", icon: "star.fill", currentPunches: 2, totalGoal: 10))
             .environment(store)
     }
 }

@@ -31,7 +31,7 @@ struct HabitListView: View {
                                     Button {
                                         selectedHabit = habit
                                     } label: {
-                                        PunchCardView(habit: habit)
+                                        PunchCardLogic(habit: habit)
                                             .shadow(color: Color.black.opacity(0.06), radius: 12, x: 0, y: 8)
                                     }
                                     .buttonStyle(PlainButtonStyle())
@@ -48,7 +48,7 @@ struct HabitListView: View {
             }
             .sheet(item: $newHabit) { habit in
                 NavigationStack {
-                    HabitDetailView(habit: habit)
+                    AddHabitView(habit: habit)
                         .toolbar {
                             ToolbarItem(placement: .cancellationAction) {
                                 Button("Abbrechen") {
@@ -63,7 +63,7 @@ struct HabitListView: View {
             }
             .sheet(item: $selectedHabit) { habit in
                 NavigationStack {
-                    HabitDetailView(habit: habit)
+                    AddHabitView(habit: habit)
                 }
             }
         }

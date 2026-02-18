@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct PunchCardView: View {
+struct PunchCardLogic: View {
     var habit: Habit
     @Environment(HabitStore.self) private var store
     
@@ -117,8 +117,8 @@ struct PunchCardView: View {
     ZStack {
         Color(red: 0.96, green: 0.93, blue: 0.88).ignoresSafeArea()
         VStack(spacing: 20) {
-            PunchCardView(habit: Habit(title: "Code Projekt", time: "1x Tag", icon: "laptopcomputer", currentPunches: 9, totalGoal: 10))
-            PunchCardView(habit: Habit(title: "Sport machen", time: "3x Woche", icon: "figure.run", currentPunches: 3, totalGoal: 10))
+            PunchCardLogic(habit: Habit(title: "Code Projekt", time: "1x Tag", icon: "laptopcomputer", currentPunches: 9, totalGoal: 10))
+            PunchCardLogic(habit: Habit(title: "Sport machen", time: "3x Woche", icon: "figure.run", currentPunches: 3, totalGoal: 10))
         }
         .padding()
     }
