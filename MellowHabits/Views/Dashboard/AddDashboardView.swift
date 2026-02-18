@@ -6,7 +6,7 @@ struct AddDashboardView: View {
     
     @State private var title = ""
     @State private var selectedTime = "Morgens"
-    private let goal = 1 // Dashboard-Items sind einfache Checklisten-Einträge
+    private let goal = 1
     
     // Farbschema
     private let mellowAccent = Color(red: 0.98, green: 0.82, blue: 0.25)
@@ -21,95 +21,84 @@ struct AddDashboardView: View {
             ZStack {
                 cozyBg.ignoresSafeArea()
                 
-                VStack(spacing: 0) {
-                    // --- Custom Navigation Bar ---
-                    HStack {
-                        Button("Abbrechen") { dismiss() }
-                            .font(.system(size: 16, weight: .medium, design: .rounded))
-                            .foregroundColor(.secondary)
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 25) {
                         
-                        Spacer()
-                        
-                        Text("Neuer Eintrag")
-                            .font(.system(size: 17, weight: .bold, design: .rounded))
-                            .foregroundColor(.black.opacity(0.8))
-                        
-                        Spacer()
-                        
-                        Button("Fertig") {
-                            saveAndDismiss()
+                        // --- Sektion: Titel ---
+                        VStack(alignment: .leading, spacing: 10) {
+                            headerLabel("ÜBERSCHRIFT")
+                            
+                            TextField("z.B. Minecraft-Garten pflegen...", text: $title)
+                                .font(.system(size: 18, weight: .bold, design: .rounded))
+                                .foregroundColor(.black.opacity(0.8))
+                                .padding()
+                                .background(softSand)
+                                .cornerRadius(20)
+                                .overlay(inputBorder)
                         }
-                        .font(.system(size: 16, weight: .bold, design: .rounded))
-                        .foregroundColor(title.isEmpty ? .secondary : deepGold)
-                        .disabled(title.isEmpty)
-                    }
-                    .padding(.horizontal, 25)
-                    .padding(.vertical, 15)
-                    .background(cozyBg)
-
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: 30) {
+                        
+                        // --- Sektion: Zeitpunkt ---
+                        VStack(alignment: .leading, spacing: 10) {
+                            headerLabel("HÄUFIGKEIT")
                             
-                            // --- Sektion: Titel ---
-                            VStack(alignment: .leading, spacing: 10) {
-                                headerLabel("WAS STEHT AN?")
-                                
-                                TextField("z.B. Minecraft-Garten pflegen...", text: $title)
-                                    .font(.system(size: 18, weight: .bold, design: .rounded))
-                                    .foregroundColor(.black.opacity(0.8))
-                                    .padding()
-                                    .background(softSand)
-                                    .cornerRadius(20)
-                                    .overlay(inputBorder)
-                            }
-                            
-                            // --- Sektion: Zeitpunkt ---
-                            VStack(alignment: .leading, spacing: 10) {
-                                headerLabel("ZEITPUNKT")
-                                
-                                HStack(spacing: 12) {
-                                    ForEach(timeOptions, id: \.self) { option in
-                                        Button {
-                                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                                            selectedTime = option
-                                        } label: {
-                                            Text(option)
-                                                .font(.system(size: 14, weight: .bold, design: .rounded))
-                                                .frame(maxWidth: .infinity)
-                                                .padding(.vertical, 14)
-                                                .background(selectedTime == option ? deepGold : softSand)
-                                                .foregroundColor(selectedTime == option ? .white : deepGold.opacity(0.7))
-                                                .cornerRadius(15)
-                                                .overlay(
-                                                    RoundedRectangle(cornerRadius: 15)
-                                                        .stroke(deepGold.opacity(0.1), lineWidth: 1)
-                                                )
-                                        }
+                            HStack(spacing: 12) {
+                                ForEach(timeOptions, id: \.self) { option in
+                                    Button {
+                                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                        selectedTime = option
+                                    } label: {
+                                        Text(option)
+                                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                                            .frame(maxWidth: .infinity)
+                                            .padding(.vertical, 14)
+                                            .background(selectedTime == option ? deepGold : softSand)
+                                            .foregroundColor(selectedTime == option ? .white : deepGold.opacity(0.7))
+                                            .cornerRadius(15)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 15)
+                                                    .stroke(deepGold.opacity(0.1), lineWidth: 1)
+                                            )
                                     }
                                 }
                             }
-                            
-                            // Deko-Footer
-                            VStack(spacing: 12) {
-                                Divider().background(deepGold.opacity(0.1))
-                                    .padding(.horizontal, 40)
-                                
-                                HStack(spacing: 6) {
-                                    Image(systemName: "leaf.fill")
-                                    Text("Done is better than perfect!")
-                                }
-                                .font(.system(size: 13, weight: .medium, design: .serif))
-                                .italic()
-                                .foregroundColor(deepGold.opacity(0.4))
-                            }
-                            .padding(.top, 40)
-                            .frame(maxWidth: .infinity)
                         }
-                        .padding(25)
+                        
+                        // Deko-Footer
+                        VStack(spacing: 12) {
+                            Divider().background(deepGold.opacity(0.1))
+                                .padding(.horizontal, 40)
+                            
+                            HStack(spacing: 6) {
+                                Image(systemName: "leaf.fill")
+                                Text("Done is better than perfect!")
+                            }
+                            .font(.system(size: 13, weight: .medium, design: .serif))
+                            .italic()
+                            .foregroundColor(deepGold.opacity(0.4))
+                        }
+                        .padding(.top, 40)
+                        .frame(maxWidth: .infinity)
                     }
+                    .padding(25)
                 }
             }
-            .toolbar(.hidden)
+            .navigationTitle("Neuer Eintrag")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Abbrechen") { dismiss() }
+                        .font(.system(size: 16, weight: .medium, design: .rounded))
+                        .foregroundColor(.secondary)
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Fertig") {
+                        saveAndDismiss()
+                    }
+                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .foregroundColor(title.isEmpty ? .secondary : deepGold)
+                    .disabled(title.isEmpty)
+                }
+            }
         }
     }
     
@@ -133,7 +122,7 @@ struct AddDashboardView: View {
     }
 }
 
-// MARK: - Preview (Pflicht für alle Seiten)
+// MARK: - Preview (Pflicht erfüllt)
 #Preview {
     AddDashboardView()
         .environment(HabitStore())
