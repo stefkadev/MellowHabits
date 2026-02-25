@@ -10,8 +10,18 @@ class Habit: Identifiable, Codable {
     var currentPunches: Int
     var totalGoal: Int
     var punchDates: [Date]
+    var notes: String
+    var isHighPriority: Bool
 
-    init(id: UUID = UUID(), title: String, time: String, icon: String = "star.fill", currentPunches: Int = 0, totalGoal: Int, punchDates: [Date] = []) {
+    init(id: UUID = UUID(),
+         title: String,
+         time: String,
+         icon: String = "star.fill",
+         currentPunches: Int = 0,
+         totalGoal: Int,
+         punchDates: [Date] = [],
+         notes: String = "",
+         isHighPriority: Bool = false) {
         self.id = id
         self.title = title
         self.time = time
@@ -19,6 +29,8 @@ class Habit: Identifiable, Codable {
         self.currentPunches = currentPunches
         self.totalGoal = totalGoal
         self.punchDates = punchDates
+        self.notes = notes
+        self.isHighPriority = isHighPriority
     }
 
     var isCelebrated: Bool {
