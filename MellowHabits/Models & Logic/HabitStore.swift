@@ -4,6 +4,8 @@ import SwiftUI
 
 @Observable
 class HabitStore {
+    private let saveKey = "SavedHabits"
+    
     var habits: [Habit] = [] {
         didSet { save() }
     }
@@ -84,21 +86,21 @@ class HabitStore {
     
     func clearAllData() {
         habits.removeAll()
-        UserDefaults.standard.removeObject(forKey: "SavedHabits")
+        UserDefaults.standard.removeObject(forKey: saveKey)
         addSampleData()
     }
     
     func save() {
         do {
             let data = try JSONEncoder().encode(habits)
-            UserDefaults.standard.set(data, forKey: "SavedHabits")
+            UserDefaults.standard.set(data, forKey: saveKey)
         } catch {
             print("Fehler beim Speichern: \(error)")
         }
     }
     
     private func load() {
-        if let data = UserDefaults.standard.data(forKey: "SavedHabits") {
+        if let data = UserDefaults.standard.data(forKey: saveKey) {
             do {
                 let decoded = try JSONDecoder().decode([Habit].self, from: data)
                 self.habits = decoded
